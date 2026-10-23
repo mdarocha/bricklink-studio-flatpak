@@ -29,8 +29,10 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
 - Unity ignores pointer clicks unless the pointer moved there first, and ignores Escape on dialogs.
 - Under bare Xvfb (no window manager), Unity ignores external window resizes and renders clipped.
   Under Mutter the layout reflows properly.
-- The tutorial banner's video doesn't play under Wine (`WindowsVideoMedia error 0x80004001`), which
-  leaves an empty box; the smoke test dismisses the banner.
+- Unity decodes the tutorial banner's video on a second D3D11 device and shares frames through
+  `IDXGIResource::GetSharedHandle`, which Wine doesn't implement (`WindowsVideoMedia error
+  0x80004001`, empty box). `patches/wine-unity-video.patch` with `WINE_D3D_CONFIG` makes that device
+  fail, and Unity falls back to software decoding.
 - First start (Wine prefix, core fonts, innoextract) takes about 3 minutes on a desktop. With the
   Wine-run Inno Setup installer it took 15 locally and 20 to 35 on a GitHub runner.
 

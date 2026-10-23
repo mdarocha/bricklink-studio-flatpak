@@ -88,9 +88,10 @@ BrickLink doesn't support this package, so please don't contact them about it.
 
 ## License
 
-The files in this repository are under the MIT license (see `LICENSE`), except the innoextract
-patch in `patches/`, which is under innoextract's zlib license. The app and file icons are original
-drawings made for this package. The published Flatpak also contains Wine and innoextract; the
+The files in this repository are under the MIT license (see `LICENSE`), except the patches in
+`patches/`: the innoextract patch is under innoextract's zlib license and the Wine patch under
+Wine's LGPL-2.1-or-later. The app and file icons are original drawings made for this package. The
+published Flatpak also contains Wine and innoextract; the
 [sources page](https://mdarocha.github.io/bricklink-studio-flatpak/sources.html) lists the exact
 sources of everything in it.
 
