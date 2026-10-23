@@ -11,7 +11,7 @@ workflows:
         - 'actions/upload-artifact@v7.0.2'
         - 'actions/upload-pages-artifact@v5.0.0'
         - 'flatpak/flatpak-github-actions@v6.8'
-        - 'mdarocha/nix-magic-setup@v2.1.0'
+        - 'mdarocha/nix-magic-setup@v2.1.1'
     '.github/workflows/update.yml':
         - 'actions/checkout@v7.0.1'
         - 'peter-evans/create-pull-request@v8.1.1'
@@ -65,16 +65,16 @@ dependencies:
         commit: 'sha1-79327416609af08178ad73b352877e51450790b3'
         owner_id: 19473042
         repo_id: 211923252
-    'mdarocha/nix-magic-setup@v2.1.0':
-        ref: 'v2.1.0'
-        commit: 'sha1-7dee3924074b4600122e79b82b2c759706601786'
+    'mdarocha/nix-magic-setup@v2.1.1':
+        ref: 'v2.1.1'
+        commit: 'sha1-097a9a21a2b7f8e962f17d51d9cf27ba6b7ceb6d'
         owner_id: 11572618
         repo_id: 1175197193
         uses:
             - 'cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24'
             - 'mic92/hestia@dfed9ced335d28978ba74e513939a10db1f71025'
             - 'nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569'
-            - 'pytooling/actions@fdcb8e6fb145f72c8e2c9c3ff6160dc62cc3e22c'
+            - 'pytooling/actions@fdf667c9883dc66b7d7de79028814dc0c869c911'
             - 'wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7'
     'mic92/hestia@dfed9ced335d28978ba74e513939a10db1f71025':
         ref: 'v3.1.0'
@@ -91,9 +91,9 @@ dependencies:
         commit: 'sha1-5f6978faf089d4d20b00c7766989d076bb2fc7f1'
         owner_id: 18365890
         repo_id: 197176365
-    'pytooling/actions@fdcb8e6fb145f72c8e2c9c3ff6160dc62cc3e22c':
-        ref: 'v7.9.0'
-        commit: 'sha1-fdcb8e6fb145f72c8e2c9c3ff6160dc62cc3e22c'
+    'pytooling/actions@fdf667c9883dc66b7d7de79028814dc0c869c911':
+        ref: 'v9.1.0'
+        commit: 'sha1-fdf667c9883dc66b7d7de79028814dc0c869c911'
         owner_id: 93549182
         repo_id: 430520285
     'srz-zumix/post-run-action@v3':

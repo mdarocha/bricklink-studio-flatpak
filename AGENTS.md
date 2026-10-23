@@ -48,6 +48,6 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
 
 ## GitHub runners
 
-- nix-magic-setup's Nix volume sits on the same disk as `/`, leaving `/` with a few hundred MB.
+- nix-magic-setup's Nix volume sits on the same disk as `/` and leaves `/` only a few GB.
   The smoke-test job puts the Flatpak installation and Wine prefix under `TMPDIR=/nix/tmp` and
   removes it before the action's post steps save the Nix cache.
