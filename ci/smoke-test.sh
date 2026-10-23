@@ -32,7 +32,7 @@ if [[ -z "${SMOKE_TEST_SESSION:-}" ]]; then
     env -u XDG_CONFIG_HOME -u XDG_DATA_HOME -u XDG_CACHE_HOME -u XDG_STATE_HOME \
         -u WAYLAND_DISPLAY -u DISPLAY -u XAUTHORITY \
         HOME="$work/home" XDG_RUNTIME_DIR="$work/runtime" SMOKE_TEST_SESSION=1 \
-        dbus-run-session -- "$0" "$repo" "$out"
+        dbus-run-session --config-file="$SMOKE_TEST_DBUS_CONFIG" -- "$0" "$repo" "$out"
     exit
 fi
 

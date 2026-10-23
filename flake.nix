@@ -53,6 +53,23 @@
               }
             );
           };
+          # Only Flatpak's session services, so host D-Bus services can't change the result.
+          dbusConfig = pkgs.writeText "smoke-test-session.conf" ''
+            <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+              "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+            <busconfig>
+              <type>session</type>
+              <keep_umask/>
+              <listen>unix:tmpdir=/tmp</listen>
+              <auth>EXTERNAL</auth>
+              <servicedir>${pkgs.flatpak}/share/dbus-1/services</servicedir>
+              <policy context="default">
+                <allow send_destination="*" eavesdrop="true"/>
+                <allow eavesdrop="true"/>
+                <allow own="*"/>
+              </policy>
+            </busconfig>
+          '';
         in
         pkgs.writeShellApplication {
           name = "smoke-test";
@@ -67,6 +84,7 @@
           ];
           runtimeEnv = {
             SMOKE_TEST_SHELL_DATA = shellData;
+            SMOKE_TEST_DBUS_CONFIG = dbusConfig;
             # Title bar font, independent of the host's fontconfig.
             FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ pkgs.adwaita-fonts ]; };
             # nixpkgs' libglvnd and libgbm only look in /run/opengl-driver, which exists only on NixOS.
