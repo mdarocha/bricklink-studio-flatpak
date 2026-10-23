@@ -14,3 +14,6 @@ smoke-test/
 
 __pycache__/
 *.pyc
+
+# direnv
+.direnv/
