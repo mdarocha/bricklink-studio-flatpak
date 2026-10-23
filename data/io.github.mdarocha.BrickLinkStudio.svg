@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <polygon points="64,44 112,68 64,92 16,68" fill="#4f8fd6"/>
+  <polygon points="16,68 64,92 64,116 16,92" fill="#2f6db3"/>
+  <polygon points="64,92 112,68 112,92 64,116" fill="#235a96"/>
+  <g>
+    <ellipse cx="64" cy="58" rx="11" ry="5.5" fill="#235a96"/>
+    <rect x="53" y="50" width="22" height="8" fill="#2f6db3"/>
+    <ellipse cx="64" cy="50" rx="11" ry="5.5" fill="#6aa6e6"/>
+    <ellipse cx="40" cy="70" rx="11" ry="5.5" fill="#235a96"/>
+    <rect x="29" y="62" width="22" height="8" fill="#2f6db3"/>
+    <ellipse cx="40" cy="62" rx="11" ry="5.5" fill="#6aa6e6"/>
+    <ellipse cx="88" cy="70" rx="11" ry="5.5" fill="#235a96"/>
+    <rect x="77" y="62" width="22" height="8" fill="#2f6db3"/>
+    <ellipse cx="88" cy="62" rx="11" ry="5.5" fill="#6aa6e6"/>
+    <ellipse cx="64" cy="82" rx="11" ry="5.5" fill="#235a96"/>
+    <rect x="53" y="74" width="22" height="8" fill="#2f6db3"/>
+    <ellipse cx="64" cy="74" rx="11" ry="5.5" fill="#6aa6e6"/>
+  </g>
+</svg>

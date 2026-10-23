@@ -1,0 +1,51 @@
+name: Check for Studio updates
+
+on:
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Pin a specific Studio version (e.g. 2.26.9_1) instead of the newest
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: upstream
+        env:
+          VERSION: ${{ inputs.version }}
+        run: python3 scripts/upstream.py update ${VERSION:+--version "$VERSION"}
+
+      - id: pr
+        if: steps.upstream.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: update/studio-${{ steps.upstream.outputs.version }}
+          delete-branch: true
+          commit-message: Update BrickLink Studio to ${{ steps.upstream.outputs.version }}
+          title: Update BrickLink Studio to ${{ steps.upstream.outputs.version }}
+          body: |
+            BrickLink published Studio **${{ steps.upstream.outputs.version }}** (manifest had ${{ steps.upstream.outputs.current }}).
+
+            This PR points the manifest's extra-data source at the new installer in BrickLink's archive, with the size and sha256 measured by `scripts/upstream.py`, and adds a release entry to the metainfo.
+
+            The Build workflow runs on this branch (started by the update workflow) and installs the result, starts Studio under Xvfb and screenshots it. Merge once it is green; publishing to the Flatpak remote happens on main.
+
+            Upstream version list: https://studio.download.bricklink.info/Studio2.0/version_Patch_OpenBeta.txt
+
+      # Pushes made with GITHUB_TOKEN don't trigger workflows, but workflow_dispatch does,
+      # and its check runs attach to the branch head, so they show up on the PR.
+      - name: Build the update branch
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build.yml --ref "update/studio-${{ steps.upstream.outputs.version }}"

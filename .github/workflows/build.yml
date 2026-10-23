@@ -1,0 +1,154 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Also started by update.yml for its PR branch: pushes made with GITHUB_TOKEN
+  # don't trigger workflows on their own.
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_ID: io.github.mdarocha.BrickLinkStudio
+  # Only main is signed and published; PRs and update branches just build and test.
+  PUBLISH: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+
+jobs:
+  verify-upstream:
+    name: Check installer URL, size and checksum
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/upstream.py verify
+
+  build:
+    name: Build Flatpak
+    needs: verify-upstream
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import signing key
+        id: gpg
+        if: env.PUBLISH == 'true'
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "$GPG_PRIVATE_KEY" ]; then
+            echo "::error::Repository secret FLATPAK_GPG_PRIVATE_KEY is not set; see README, section 'Publishing setup'."
+            exit 1
+          fi
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          echo "keyid=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr:/ { print $10; exit }')" >> "$GITHUB_OUTPUT"
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: ${{ env.APP_ID }}.yml
+          bundle: bricklink-studio.flatpak
+          artifact-name: bundle
+          branch: stable
+          gpg-sign: ${{ steps.gpg.outputs.keyid }}
+          cache-key: flatpak-builder-${{ hashFiles(format('{0}.yml', env.APP_ID)) }}
+
+      # Regenerates the summary and the appstream branches that GNOME Software and
+      # Discover read, signed with the same key.
+      - name: Update repository metadata
+        if: env.PUBLISH == 'true'
+        run: |
+          flatpak build-update-repo --gpg-sign="${{ steps.gpg.outputs.keyid }}" \
+            --title="BrickLink Studio (unofficial)" --default-branch=stable --prune repo
+          tar -cf repo.tar repo
+
+      - uses: actions/upload-artifact@v4
+        if: env.PUBLISH == 'true'
+        with:
+          name: ostree-repo
+          path: repo.tar
+          retention-days: 3
+
+  smoke-test:
+    name: Install, start Studio and take a screenshot
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak xvfb xdotool imagemagick
+          # Ubuntu 24.04 blocks unprivileged user namespaces, which bubblewrap needs.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - run: ci/smoke-test.sh bricklink-studio.flatpak smoke-test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test
+          path: smoke-test/
+
+  deploy:
+    name: Publish Flatpak remote to GitHub Pages
+    needs: [build, smoke-test]
+    # A failed smoke test still publishes: it usually means Studio's first start changed,
+    # not that the package is broken. The previous screenshot is reused in that case.
+    if: always() && needs.build.result == 'success' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ostree-repo
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: smoke-test
+          path: smoke-test
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble site
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          keyid=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr:/ { print $10; exit }')
+          tar -xf repo.tar
+
+          mkdir -p site/screenshots
+          if [ -f smoke-test/main.png ]; then
+            cp smoke-test/main.png site/screenshots/main.png
+          else
+            curl -fsSL "$BASE_URL/screenshots/main.png" -o site/screenshots/main.png || {
+              rm -f site/screenshots/main.png
+              echo "::warning::No screenshot available; the store listing will have none until a smoke test passes."
+            }
+          fi
+
+          ci/make-site.sh repo site "$BASE_URL" "$keyid"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

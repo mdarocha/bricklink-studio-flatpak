@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-bricklink-studio">
+    <comment>BrickLink Studio model</comment>
+    <comment xml:lang="cs">Model BrickLink Studio</comment>
+    <comment xml:lang="de">BrickLink-Studio-Modell</comment>
+    <comment xml:lang="es">Modelo de BrickLink Studio</comment>
+    <comment xml:lang="fr">Modèle BrickLink Studio</comment>
+    <comment xml:lang="it">Modello BrickLink Studio</comment>
+    <comment xml:lang="nl">BrickLink Studio-model</comment>
+    <comment xml:lang="pl">Model BrickLink Studio</comment>
+    <comment xml:lang="pt_BR">Modelo do BrickLink Studio</comment>
+    <!-- .io files are ZIP archives; the low weight keeps unrelated .io files from being claimed by name alone. -->
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.io" weight="40"/>
+    <icon name="io.github.mdarocha.BrickLinkStudio"/>
+  </mime-type>
+</mime-info>

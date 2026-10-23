@@ -1,0 +1,16 @@
+# flatpak-builder state and output
+.flatpak-builder/
+build-dir/
+repo/
+repo.tar
+*.flatpak
+
+# CI scratch output when run locally
+site/
+smoke-test/
+
+# Studio installers, in case one gets downloaded next to the manifest
+*.exe
+
+__pycache__/
+*.pyc

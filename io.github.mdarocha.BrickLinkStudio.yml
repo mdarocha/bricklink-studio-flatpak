@@ -1,0 +1,87 @@
+id: io.github.mdarocha.BrickLinkStudio
+# Wine 11.0, winetricks and cabextract come from Flathub's Wine base app.
+base: org.winehq.Wine
+base-version: stable-25.08
+runtime: org.freedesktop.Platform
+runtime-version: &runtime-version '25.08'
+sdk: org.freedesktop.Sdk
+command: bricklink-studio
+
+x-gl-version: &gl-version '1.4'
+x-gl-versions: &gl-versions 25.08;25.08-extra;1.4
+x-gl-merge-dirs: &gl-merge-dirs vulkan/icd.d;glvnd/egl_vendor.d;egl/egl_external_platform.d;OpenCL/vendors;lib/dri;lib/d3d;lib/gbm;vulkan/explicit_layer.d;vulkan/implicit_layer.d;vdpau
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --device=dri
+  # BrickLink catalog, sign-in and part library downloads.
+  - --share=network
+  - --allow=multiarch
+  # Wine's Documents, Pictures and Downloads folders are linked to these.
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-pictures
+  - --filesystem=xdg-download
+  # Host paths of the XDG folders, which may be localized (~/Dokumenty, ~/Bilder, ...).
+  - --filesystem=xdg-config/user-dirs.dirs:ro
+  - --env=WINEPREFIX=/var/data/prefix
+  - --env=WINEDEBUG=-all
+  - --env=WINEDLLOVERRIDES=winemenubuilder.exe=d
+
+# Extension points are not inherited from a base app, so the ones Wine needs
+# for its 32-bit half (Studio's installer is 32-bit) are declared again here.
+add-extensions:
+  org.freedesktop.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
+    version: *runtime-version
+
+  org.freedesktop.Platform.GL32:
+    directory: lib/i386-linux-gnu/GL
+    version: *gl-version
+    versions: *gl-versions
+    subdirectories: true
+    no-autodownload: true
+    autodelete: false
+    add-ld-path: lib
+    merge-dirs: *gl-merge-dirs
+    download-if: active-gl-driver
+    enable-if: active-gl-driver
+    autoprune-unless: active-gl-driver
+
+  org.winehq.Wine.gecko:
+    directory: share/wine/gecko
+    version: stable-25.08
+
+  org.winehq.Wine.mono:
+    directory: share/wine/mono
+    version: stable-25.08
+
+cleanup-commands:
+  # Keep the base app's own launcher and store entries out of the exported app.
+  - rm -f /app/share/applications/org.winehq.Wine.desktop /app/share/metainfo/org.winehq.Wine*.xml
+
+modules:
+  - name: bricklink-studio
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 src/apply_extra.sh /app/bin/apply_extra
+      - install -Dm755 src/bricklink-studio.sh /app/bin/bricklink-studio
+      - install -Dm644 data/${FLATPAK_ID}.desktop -t /app/share/applications
+      - install -Dm644 data/${FLATPAK_ID}.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 data/${FLATPAK_ID}.mime.xml /app/share/mime/packages/${FLATPAK_ID}.xml
+      - install -Dm644 data/${FLATPAK_ID}.svg -t /app/share/icons/hicolor/scalable/apps
+    sources:
+      - type: dir
+        path: src
+        dest: src
+      - type: dir
+        path: data
+        dest: data
+      # Downloaded from BrickLink by Flatpak on the user's machine at install time;
+      # the installer is never part of this repository or the published Flatpak repo.
+      # Kept current by scripts/upstream.py (see .github/workflows/update.yml).
+      - type: extra-data
+        filename: Studio+2.0.exe
+        url: https://studio.download.bricklink.info/Studio2.0/Archive/2.26.9_1/Studio+2.0.exe
+        sha256: 30764aef4715d22b9beaba1fe9734494f12247b0db75d4e2100ffd9c15d9c1d9
+        size: 0
