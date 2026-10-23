@@ -66,9 +66,6 @@ Other distributions: install `flatpak` and `flatpak-builder` from your package m
 ```sh
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-# Only needed while the manifest's extra-data size is 0 (see "Publishing setup", step 1).
-python3 scripts/upstream.py update
-
 flatpak-builder --user --install --install-deps-from=flathub --force-clean \
     build-dir io.github.mdarocha.BrickLinkStudio.yml
 flatpak run io.github.mdarocha.BrickLinkStudio
@@ -124,41 +121,6 @@ or locally with `python3 scripts/upstream.py update [--version 2.26.9_1]`.
 
 Studio's own in-app updater still works inside the prefix, but updates through the Flatpak are
 the ones that stick across reinstalls.
-
-## Publishing setup
-
-One-time steps after pushing the repository to GitHub.
-
-1. **Fill in the installer size.** The manifest pins Studio 2.26.9_1 with the sha256 from
-   winget's manifest, but `size` is `0` because the installer could not be downloaded when this
-   repository was created. Either run `python3 scripts/upstream.py update` locally and commit, or
-   finish step 3 and run the "Check for Studio updates" workflow, which opens a PR with the
-   correct values. Until then the Build workflow fails at "Check installer URL, size and checksum".
-
-2. **Signing key.** Clients pin the remote's GPG key. Create one without a passphrase for CI and
-   store it as a secret; keep a backup, because replacing it means everyone has to re-add the
-   remote.
-
-   ```sh
-   gpg --batch --passphrase '' --quick-gen-key "BrickLink Studio Flatpak signing key" rsa4096 sign never
-   KEYID=$(gpg --list-secret-keys --with-colons "BrickLink Studio Flatpak signing key" | awk -F: '/^fpr:/ { print $10; exit }')
-   gpg --armor --export-secret-keys "$KEYID" | gh secret set FLATPAK_GPG_PRIVATE_KEY
-   ```
-
-3. **Let workflows push branches and open PRs.**
-
-   ```sh
-   gh api -X PUT repos/mdarocha/bricklink-studio-flatpak/actions/permissions/workflow \
-       -f default_workflow_permissions=write -F can_approve_pull_request_reviews=true
-   ```
-
-   (Settings → Actions → General → Workflow permissions.)
-
-4. **Enable GitHub Pages from Actions.**
-
-   ```sh
-   gh api -X POST repos/mdarocha/bricklink-studio-flatpak/pages -f build_type=workflow
-   ```
 
 ## CI
 
