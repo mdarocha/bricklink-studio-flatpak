@@ -79,19 +79,25 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     permissions:
-      # nix-magic-setup prunes stale Nix store caches.
+      # hestia gc deletes stale cache entries.
       actions: write
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: mdarocha/nix-magic-setup@v2.1.0
+        with:
+          # The Nix volume shares /'s disk; without this, / is left with a few hundred MB.
+          free-up-all-storage: true
+          # Uploads only what the job built, so saving the cache needs no space on /.
+          cache-action: hestia
+          hestia-gc: true
       - uses: actions/download-artifact@v8.0.2
         with:
           name: ostree-repo
       # Ubuntu 24.04 blocks unprivileged user namespaces, which bubblewrap needs.
       - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: tar -xf repo.tar
-      # After Nix setup / has under 1 GB free; the Flatpak installation and Wine prefix need several.
+      # The Flatpak installation and Wine prefix take several GB; put them on the Nix volume.
       - run: sudo install -d -m 1777 /nix/tmp
       # Unlike the job timeout, a step timeout still lets the artifacts below upload.
       - run: nix run .#smoke-test -- repo smoke-test

@@ -175,6 +175,9 @@ class SmokeTest {
 
 export default class SmokeTestExtension extends Extension {
     enable() {
+        // Unity on a slow runner misses Mutter's pings; keeps "Not Responding" out of the screenshot.
+        new Gio.Settings({schema_id: 'org.gnome.mutter'}).set_uint('check-alive-timeout', 0);
+
         this._object = Gio.DBusExportedObject.wrapJSObject(INTERFACE, new SmokeTest());
         this._object.export(Gio.DBus.session, OBJECT_PATH);
     }
