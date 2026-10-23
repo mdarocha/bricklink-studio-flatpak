@@ -91,9 +91,13 @@ jobs:
       # Ubuntu 24.04 blocks unprivileged user namespaces, which bubblewrap needs.
       - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: tar -xf repo.tar
+      # After Nix setup / has under 1 GB free; the Flatpak installation and Wine prefix need several.
+      - run: sudo install -d -m 1777 /nix/tmp
       # Unlike the job timeout, a step timeout still lets the artifacts below upload.
       - run: nix run .#smoke-test -- repo smoke-test
         timeout-minutes: 60
+        env:
+          TMPDIR: /nix/tmp
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
