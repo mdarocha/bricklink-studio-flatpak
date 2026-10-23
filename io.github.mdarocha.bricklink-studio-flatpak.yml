@@ -6,6 +6,9 @@ command: bricklink-studio
 # Wine 11.0, winetricks and cabextract come from Flathub's Wine base app.
 base: org.winehq.Wine
 base-version: stable-26.08
+# For cross-compiling the patched Wine DLLs.
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.mingw-w64
 
 finish-args:
   - --share=ipc
@@ -23,6 +26,8 @@ finish-args:
   - --env=WINEDEBUG=-all
   # No Wine Mono or Gecko is shipped; disabling them stops Wine offering to download them.
   - --env=WINEDLLOVERRIDES=winemenubuilder.exe=d;mscoree,mshtml=
+  # Makes the patched wined3d fail Unity's video decoding device, so Unity decodes in software.
+  - --env=WINE_D3D_CONFIG=no_create_flags=0x800
 
 cleanup-commands:
   # Keep the base app's own launchers and store entries out of the app.
@@ -64,6 +69,29 @@ modules:
           - type: archive
             url: https://archives.boost.io/release/1.91.0/source/boost_1_91_0.tar.gz
             sha256: 5734305f40a76c30f951c9abd409a45a2a19fb546efe4162119250bbe4d3a463
+
+  # Patched dxgi and wined3d so Unity videos play; see patches/wine-unity-video.patch.
+  - name: wine-unity-video
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/mingw-w64/bin
+    license-files:
+      - COPYING.LIB
+    build-commands:
+      # Replaces the base app's DLLs, so must be the same Wine release.
+      - test "$(wine --version)" = wine-11.0
+      - mkdir build
+      - cd build && ../configure --enable-archs=x86_64 --disable-tests --without-x --without-freetype
+      - make -C build -j${FLATPAK_BUILDER_N_JOBS} dlls/dxgi/x86_64-windows/dxgi.dll dlls/wined3d/x86_64-windows/wined3d.dll
+      - x86_64-w64-mingw32-strip build/dlls/dxgi/x86_64-windows/dxgi.dll build/dlls/wined3d/x86_64-windows/wined3d.dll
+      - install -m644 build/dlls/dxgi/x86_64-windows/dxgi.dll build/dlls/wined3d/x86_64-windows/wined3d.dll
+          -t /app/lib/wine/x86_64-windows
+    sources:
+      - type: archive
+        url: https://dl.winehq.org/wine/source/11.0/wine-11.0.tar.xz
+        sha256: c07a6857933c1fc60dff5448d79f39c92481c1e9db5aa628db9d0358446e0701
+      - type: patch
+        path: patches/wine-unity-video.patch
 
   - name: bricklink-studio
     buildsystem: simple

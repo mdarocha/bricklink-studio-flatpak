@@ -22,6 +22,14 @@
   writes three Windows GPU-timeout registry values and offers to start Studio; none of that
   applies under Wine, and its `[Code]` only runs on uninstall. If a Studio release moves to an
   Inno Setup version the pinned innoextract can't read, the smoke test of the update PR fails.
+- **Wine patch.** The manifest rebuilds the base app's `dxgi.dll` and `wined3d.dll` from the same
+  Wine release with `patches/wine-unity-video.patch`
+  ([wine/wine!11398](https://gitlab.winehq.org/wine/wine/-/merge_requests/11398), not yet merged).
+  With `WINE_D3D_CONFIG=no_create_flags=0x800` from the finish-args, it fails Unity's
+  video-decoding D3D11 device, so Unity decodes in software and the welcome screen's tutorial video
+  plays instead of an empty box. The build fails if the base app moves to another Wine release;
+  then update the source URL and checksum, check that the patch still applies, and drop it once
+  Wine implements `IDXGIResource::GetSharedHandle`.
 
 ## Licensing
 
@@ -169,7 +177,7 @@ io.github.mdarocha.bricklink-studio-flatpak.yml   Flatpak manifest
 src/bricklink-studio.sh       launcher: license prompt, prefix setup, XDG links, innoextract, start
 src/apply_extra.sh            install-time hook for the downloaded installer
 data/                         desktop entry, metainfo (8 translations), MIME type, app and file icons
-patches/                      innoextract patch for Studio's installer
+patches/                      innoextract patch for Studio's installer, Wine patch for its videos
 scripts/upstream.py           check / update / verify the pinned Studio version
 ci/smoke-test.sh              headless install-and-launch test with screenshot (flake app)
 ci/smoke-test/extension.js    GNOME Shell extension the smoke test drives the window through

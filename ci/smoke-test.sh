@@ -123,6 +123,9 @@ wait_for_log 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$startup_
 
 # Featured models and banners load from BrickLink after the welcome screen opens.
 sleep 15
+if grep -q 'WindowsVideoMedia error' "$out/studio.log"; then
+    fail "the tutorial banner's video failed to play; see patches/wine-unity-video.patch"
+fi
 frame_size=$(shell_call FrameSize "'$wm_class'")
 [[ "$frame_size" == "(${window_size[0]}, ${window_size[1]})" ]] ||
     fail "Studio window is $frame_size, not ${window_size[*]}; click offsets would miss"
