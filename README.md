@@ -1,4 +1,4 @@
-> ⚠️ 100% vibecoded repo
+> ⚠️ **100% vibecoded codebase**
 
 # BrickLink Studio Flatpak
 
