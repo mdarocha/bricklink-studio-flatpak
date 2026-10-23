@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Assembles the GitHub Pages site that serves the Flatpak remote.
 #
 # Usage: ci/make-site.sh REPO_DIR SITE_DIR BASE_URL GPG_KEY_ID
@@ -51,7 +51,7 @@ EOF
 
 screenshot=""
 if [[ -f "$site/screenshots/main.png" ]]; then
-    screenshot="<img src=\"screenshots/main.png\" alt=\"BrickLink Studio main window\">"
+    screenshot="<img src=\"screenshots/main.png\" alt=\"BrickLink Studio welcome screen\">"
 fi
 
 cat >"$site/index.html" <<EOF
@@ -65,12 +65,12 @@ cat >"$site/index.html" <<EOF
 <style>
   body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
   pre { background: #f2f2f2; padding: .75rem; overflow-x: auto; }
-  img { max-width: 100%; border: 1px solid #ccc; }
+  img { max-width: 100%; }
   @media (prefers-color-scheme: dark) { body { background: #1b1b1b; color: #ddd; } pre { background: #2a2a2a; } a { color: #8ab4f8; } }
 </style>
 </head>
 <body>
-<h1><img src="icon.svg" alt="" width="48" height="48" style="border:0;vertical-align:middle"> BrickLink Studio (unofficial Flatpak)</h1>
+<h1><img src="icon.svg" alt="" width="48" height="48" style="vertical-align:middle"> BrickLink Studio (unofficial Flatpak)</h1>
 <p>Runs the official Windows version of BrickLink Studio with Wine. Flatpak downloads Studio's installer
 from BrickLink's servers when you install the app; this site only hosts Wine and the launcher scripts.
 Not affiliated with BrickLink or the LEGO Group.</p>

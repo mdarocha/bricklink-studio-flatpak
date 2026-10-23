@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # Runs once at install/update time inside /app/extra, after Flatpak has downloaded
 # and checksummed the installer. No network, no display.
 set -eu

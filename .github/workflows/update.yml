@@ -18,7 +18,7 @@ jobs:
   update:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
 
       - id: upstream
         env:
@@ -27,7 +27,7 @@ jobs:
 
       - id: pr
         if: steps.upstream.outputs.updated == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8.1.1
         with:
           branch: update/studio-${{ steps.upstream.outputs.version }}
           delete-branch: true

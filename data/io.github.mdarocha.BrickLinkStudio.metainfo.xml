@@ -118,18 +118,18 @@
   </branding>
 
   <screenshots>
-    <!-- Captured by the smoke-test job in .github/workflows/build.yml and published with the Flatpak repo. -->
+    <!-- Captured by ci/smoke-test.sh in the Build workflow and published with the Flatpak repo. -->
     <screenshot type="default">
       <image>https://mdarocha.github.io/bricklink-studio-flatpak/screenshots/main.png</image>
-      <caption>Main window on first start</caption>
-      <caption xml:lang="cs">Hlavní okno při prvním spuštění</caption>
-      <caption xml:lang="de">Hauptfenster beim ersten Start</caption>
-      <caption xml:lang="es">Ventana principal en el primer inicio</caption>
-      <caption xml:lang="fr">Fenêtre principale au premier lancement</caption>
-      <caption xml:lang="it">Finestra principale al primo avvio</caption>
-      <caption xml:lang="nl">Hoofdvenster bij de eerste start</caption>
-      <caption xml:lang="pl">Główne okno przy pierwszym uruchomieniu</caption>
-      <caption xml:lang="pt_BR">Janela principal na primeira execução</caption>
+      <caption>Welcome screen with sample models</caption>
+      <caption xml:lang="cs">Úvodní obrazovka s ukázkovými modely</caption>
+      <caption xml:lang="de">Startbildschirm mit Beispielmodellen</caption>
+      <caption xml:lang="es">Pantalla de bienvenida con modelos de ejemplo</caption>
+      <caption xml:lang="fr">Écran d’accueil avec des modèles d’exemple</caption>
+      <caption xml:lang="it">Schermata di benvenuto con modelli di esempio</caption>
+      <caption xml:lang="nl">Welkomstscherm met voorbeeldmodellen</caption>
+      <caption xml:lang="pl">Ekran powitalny z przykładowymi modelami</caption>
+      <caption xml:lang="pt_BR">Tela de boas-vindas com modelos de exemplo</caption>
     </screenshot>
   </screenshots>
 

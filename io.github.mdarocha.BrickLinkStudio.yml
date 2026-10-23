@@ -26,15 +26,19 @@ finish-args:
   - --filesystem=xdg-config/user-dirs.dirs:ro
   - --env=WINEPREFIX=/var/data/prefix
   - --env=WINEDEBUG=-all
-  - --env=WINEDLLOVERRIDES=winemenubuilder.exe=d
+  # No Wine Mono or Gecko is shipped; disabling them stops Wine offering to download them.
+  - --env=WINEDLLOVERRIDES=winemenubuilder.exe=d;mscoree,mshtml=
 
-# Extension points are not inherited from a base app, so the ones Wine needs
-# for its 32-bit half (Studio's installer is 32-bit) are declared again here.
-add-extensions:
+# Flatpak installs app extensions only from the app's own remote, so 32-bit Wine
+# (Studio's installer is 32-bit) gets a copy of Flathub's i386 runtime instead.
+add-build-extensions:
   org.freedesktop.Platform.Compat.i386:
-    directory: lib/i386-linux-gnu
+    directory: lib/compat-i386
     version: *runtime-version
+    remove-after-build: true
 
+# Extension points aren't inherited from the base app. Optional: Studio itself is 64-bit.
+add-extensions:
   org.freedesktop.Platform.GL32:
     directory: lib/i386-linux-gnu/GL
     version: *gl-version
@@ -48,19 +52,19 @@ add-extensions:
     enable-if: active-gl-driver
     autoprune-unless: active-gl-driver
 
-  org.winehq.Wine.gecko:
-    directory: share/wine/gecko
-    version: stable-25.08
-
-  org.winehq.Wine.mono:
-    directory: share/wine/mono
-    version: stable-25.08
+cleanup:
+  - /lib/compat-i386
 
 cleanup-commands:
   # Keep the base app's own launcher and store entries out of the exported app.
   - rm -f /app/share/applications/org.winehq.Wine.desktop /app/share/metainfo/org.winehq.Wine*.xml
 
 modules:
+  - name: compat-i386
+    buildsystem: simple
+    build-commands:
+      - cp -a /app/lib/compat-i386/. /app/lib/i386-linux-gnu/
+
   - name: bricklink-studio
     buildsystem: simple
     build-commands:

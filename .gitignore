@@ -6,8 +6,8 @@ repo.tar
 *.flatpak
 
 # CI scratch output when run locally
-site/
-smoke-test/
+/site/
+/smoke-test/
 
 # Studio installers, in case one gets downloaded next to the manifest
 *.exe

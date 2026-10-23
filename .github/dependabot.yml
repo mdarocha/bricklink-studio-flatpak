@@ -1,0 +1,10 @@
+# Dependabot also regenerates the matching .github/workflows/actions.lock entries.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # gh-actions-lock also uses this as the minimum release age for new pins.
+    cooldown:
+      default-days: 7

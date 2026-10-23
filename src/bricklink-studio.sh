@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Starts BrickLink Studio from the app's private Wine prefix.
 #
 # The installer Flatpak downloaded from BrickLink (/app/extra) is run into the prefix on
