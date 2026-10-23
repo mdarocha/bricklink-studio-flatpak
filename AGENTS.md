@@ -14,13 +14,14 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
 - `nix build .#smoke-test` runs shellcheck on `ci/smoke-test.sh`.
 - `nix run nixpkgs#actionlint -- .github/workflows/*.yml`.
 - After touching any `uses:`, regenerate the lockfile with `gh actions-lock` (see the maintainer notes).
-- A full smoke test needs network and 10+ minutes locally; CI takes about 40.
+- A full smoke test needs network and about 15 minutes locally; CI takes about 30.
 
 ## Studio under Wine
 
 - Studio is a Unity 2022.3 app. It logs to stdout, captured as `smoke-test/studio.log`.
-  Startup is a sequence of `Executing step: ...` / `Completed step: ...` lines ending in
-  `Initialization sequence completed.`; these are the reliable progress markers.
+  Startup runs two sequences of `Executing step: ...` / `Completed step: ...` lines, each ending in
+  `Initialization sequence completed.`: the first loads the Build Mode scene, the second opens the
+  welcome screen (`ShowWelcomeScreenOrOpenEmptyFileStep`). On a slow runner the gap is long.
 - The Unity Analytics consent dialog (`CheckUnityAnalyticsConsentStep`) appears on every start of a
   signed-out install. The answer is not stored in the registry PlayerPrefs or in AppData, so it
   can't be preseeded; the smoke test clicks "Decline tracking".

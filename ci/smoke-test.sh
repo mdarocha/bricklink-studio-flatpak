@@ -118,7 +118,8 @@ shell_call PlaceWindow "'$wm_class'" "int32 ${window_size[0]}" "int32 ${window_s
 sleep 10
 click "${decline_tracking[@]}"
 wait_for_log 'Completed step: .*CheckUnityAnalyticsConsentStep' 60
-wait_for_log 'Initialization sequence completed' "$startup_timeout_s"
+# The first initialization sequence only loads the Build Mode scene, whose sequence opens the welcome screen.
+wait_for_log 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$startup_timeout_s"
 
 # Featured models and banners load from BrickLink after the welcome screen opens.
 sleep 15
