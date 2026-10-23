@@ -4,12 +4,15 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Started by update.yml for its PR branch, like Build.
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   verify:
+    name: Verify actions lockfile
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}

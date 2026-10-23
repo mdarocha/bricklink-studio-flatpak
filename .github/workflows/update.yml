@@ -44,8 +44,11 @@ jobs:
 
       # Pushes made with GITHUB_TOKEN don't trigger workflows, but workflow_dispatch does,
       # and its check runs attach to the branch head, so they show up on the PR.
-      - name: Build the update branch
+      - name: Run checks on the update branch
         if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run build.yml --ref "update/studio-${{ steps.upstream.outputs.version }}"
+          BRANCH: update/studio-${{ steps.upstream.outputs.version }}
+        run: |
+          gh workflow run build.yml --ref "$BRANCH"
+          gh workflow run verify-lockfile.yml --ref "$BRANCH"

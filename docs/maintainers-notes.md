@@ -66,8 +66,8 @@ list (`version_Patch_OpenBeta.txt`, the same source winget's updater uses), and 
 release it downloads the installer from
 `https://studio.download.bricklink.info/Studio2.0/Archive/<version>/Studio+2.0.exe`, measures its
 size and sha256, rewrites the manifest's extra-data entry and adds a `<release>` to the metainfo.
-It then opens a PR and starts the Build workflow on that branch, which installs the result and
-starts Studio. Merge when it is green; main publishes to the remote.
+It then opens a PR and starts the Build and lockfile workflows on that branch; Build installs the
+result and starts Studio. Merge when it is green; main publishes to the remote.
 
 Run it by hand from the Actions tab ("Check for Studio updates"), optionally pinning a version,
 or locally with `python3 scripts/upstream.py update [--version 2.26.9_1]`.
@@ -81,7 +81,11 @@ or locally with `python3 scripts/upstream.py update [--version 2.26.9_1]`.
 | Build / smoke-test | same | Runs `nix run .#smoke-test` on that repo (see below). |
 | Build / deploy | main only | Publishes the signed OSTree repo, `.flatpakrepo`, `.flatpakref`, icon, screenshot and a landing page to GitHub Pages. |
 | Check for Studio updates | Mondays, dispatch | Opens an update PR as described above. |
-| Verify actions lockfile | every push to main, PR | Runs `gh actions-lock --verify`. |
+| Verify actions lockfile | every push to main, PR, dispatch | Runs `gh actions-lock --verify`. |
+
+The `default` ruleset on main requires a PR with every review thread resolved, and the checks
+"Check installer URL, size and checksum", "Build Flatpak", "Install, start Studio and take a
+screenshot" and "Verify actions lockfile". Repository admins can bypass it.
 
 The metainfo screenshot URL points at the screenshot the smoke test publishes, so the store listing
 shows the real app without any BrickLink images being stored in this repository. If a smoke test
