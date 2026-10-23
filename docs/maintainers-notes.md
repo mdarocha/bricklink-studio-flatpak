@@ -137,7 +137,7 @@ pinned by digest, which neither tool updates; refresh it by hand when changing t
 io.github.mdarocha.BrickLinkStudio.yml   Flatpak manifest
 src/bricklink-studio.sh                  launcher: prefix setup, XDG links, installer, start
 src/apply_extra.sh                       install-time hook for the downloaded installer
-data/                                    desktop entry, metainfo (8 translations), MIME type, icon
+data/                                    desktop entry, metainfo (8 translations), MIME type, app and file icons
 scripts/upstream.py                      check / update / verify the pinned Studio version
 ci/smoke-test.sh                         headless install-and-launch test with screenshot (flake app)
 ci/smoke-test/extension.js               GNOME Shell extension the smoke test drives the window through

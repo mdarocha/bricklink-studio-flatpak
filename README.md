@@ -23,7 +23,7 @@ Not affiliated with, endorsed or supported by BrickLink or the LEGO Group.
   folders, read from `~/.config/user-dirs.dirs`, so localized names like `~/Dokumenty` work.
   Models land where you'd expect, and renders can go straight to Pictures. Those three folders
   are the only parts of your home directory the app can see.
-- **`.io` files** get a MIME type and open in Studio from the file manager.
+- **`.io` files** get their own file icon and open in Studio from the file manager.
 
 ## Install from the Flatpak remote
 
@@ -77,8 +77,8 @@ This removes the prefix. Models in your Documents folder stay.
 
 ## License
 
-The files in this repository are under the MIT license (see `LICENSE`). The icon is an original
-drawing made for this package.
+The files in this repository are under the MIT license (see `LICENSE`). The app and file icons are
+original drawings made for this package.
 
 BrickLink Studio is proprietary software by BrickLink, distributed under its own license
 agreement, which its installer shows on first start. LEGO is a trademark of the LEGO Group.
