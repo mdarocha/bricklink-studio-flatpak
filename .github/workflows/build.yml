@@ -42,7 +42,7 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
         run: |
           if [ -z "$GPG_PRIVATE_KEY" ]; then
-            echo "::error::Repository secret FLATPAK_GPG_PRIVATE_KEY is not set; see README, section 'Publishing setup'."
+            echo "::error::Repository secret FLATPAK_GPG_PRIVATE_KEY is not set; it must hold an ASCII-armored, passphrase-less GPG private key."
             exit 1
           fi
           printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
