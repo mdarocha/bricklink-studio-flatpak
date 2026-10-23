@@ -12,8 +12,9 @@ repo_dir=$1
 site=$2
 base_url=$3
 key_id=$4
-app=io.github.mdarocha.BrickLinkStudio
+app=io.github.mdarocha.bricklink-studio-flatpak
 remote=bricklink-studio
+source_repo=https://github.com/mdarocha/bricklink-studio-flatpak
 here=$(cd "$(dirname "$0")/.." && pwd)
 
 mkdir -p "$site"
@@ -21,6 +22,15 @@ cp -a "$repo_dir" "$site/repo"
 cp "$here/data/$app.svg" "$site/icon.svg"
 # Pages would otherwise run Jekyll over the repo and skip files starting with "_" or ".".
 touch "$site/.nojekyll"
+
+# The source list comes from the manifests flatpak-builder stores inside the built app.
+manifests=$(mktemp -d)
+trap 'rm -rf "$manifests"' EXIT
+for manifest in manifest.json manifest-base-1.json; do
+    ostree --repo="$repo_dir" cat "app/$app/x86_64/stable" "/files/$manifest" >"$manifests/$manifest"
+done
+"$here/ci/sources-page.py" "$manifests/manifest.json" "$manifests/manifest-base-1.json" \
+    "$source_repo" "$(git -C "$here" rev-parse HEAD)" >"$site/sources.html"
 
 gpg_key=$(gpg --export "$key_id" | base64 -w0)
 
@@ -71,8 +81,9 @@ cat >"$site/index.html" <<EOF
 </head>
 <body>
 <h1><img src="icon.svg" alt="" width="48" height="48" style="vertical-align:middle"> BrickLink Studio (unofficial Flatpak)</h1>
-<p>Runs the official Windows version of BrickLink Studio with Wine. Flatpak downloads Studio's installer
-from BrickLink's servers when you install the app; this site only hosts Wine and the launcher scripts.
+<p>Runs the official Windows version of <a href="https://www.bricklink.com/v3/studio/main.page">BrickLink Studio</a> with Wine.
+Flatpak downloads Studio's installer from BrickLink's servers when you install the app; this site
+only hosts Wine, innoextract and the launcher scripts (<a href="sources.html">sources</a>).
 Not affiliated with BrickLink or the LEGO Group.</p>
 <h2>Install</h2>
 <p>Needs the Flathub remote for the runtime. Then either open
@@ -80,7 +91,12 @@ Not affiliated with BrickLink or the LEGO Group.</p>
 <pre>flatpak remote-add --user --if-not-exists $remote $base_url/$remote.flatpakrepo
 flatpak install --user $remote $app</pre>
 $screenshot
-<p>Source and documentation: <a href="https://github.com/mdarocha/bricklink-studio-flatpak">github.com/mdarocha/bricklink-studio-flatpak</a></p>
+<h2>Support</h2>
+<p>Report problems with this package (installing, starting, Wine, file associations, folders) as
+<a href="$source_repo/issues">issues on GitHub</a>. For problems with Studio itself, check whether they
+also happen on Windows; if so, use the <a href="https://studiohelp.bricklink.com/hc/en-us">Studio Help
+Center</a> or forum. BrickLink doesn't support this package, so please don't contact them about it.</p>
+<p>Source and documentation: <a href="$source_repo">github.com/mdarocha/bricklink-studio-flatpak</a></p>
 </body>
 </html>
 EOF

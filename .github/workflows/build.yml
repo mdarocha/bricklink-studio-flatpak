@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_ID: io.github.mdarocha.BrickLinkStudio
+  APP_ID: io.github.mdarocha.bricklink-studio-flatpak
   # Only main is signed and published; PRs and update branches just build and test.
   PUBLISH: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
 
@@ -30,7 +30,7 @@ jobs:
     needs: verify-upstream
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08@sha256:c91a88269eee8fcdd73ecf43064232fbebe27411f926f63f38bdf70c51f2ceae
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08@sha256:6ed6921bb5a9e1a916989971844f159b854b7b225880c381fa34f7a158863039
       options: --privileged
     steps:
       - uses: actions/checkout@v7.0.1
@@ -136,6 +136,9 @@ jobs:
 
       - id: pages
         uses: actions/configure-pages@v6.0.0
+
+      # make-site.sh reads the built app's manifests for the source list.
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ostree
 
       - name: Assemble site
         env:

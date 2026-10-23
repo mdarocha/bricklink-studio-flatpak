@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Starts BrickLink Studio from the app's private Wine prefix.
 #
-# The installer Flatpak downloaded from BrickLink (/app/extra) is run into the prefix on
-# first start, and again whenever an app update ships a different installer. Wine's
-# Documents, Pictures and Downloads folders are linked to the host's XDG folders on every
-# start, so models end up in the real ~/Documents (or its localized equivalent).
+# The installer Flatpak downloaded from BrickLink (/app/extra) is unpacked into the prefix with
+# innoextract on first start, after the user accepts its license agreement, and again whenever an
+# app update ships a different installer. Wine's Documents, Pictures and Downloads folders are
+# linked to the host's XDG folders on every start, so models end up in the real ~/Documents (or
+# its localized equivalent).
 #
 # Usage: bricklink-studio [MODEL.io ...]
 #
@@ -12,8 +13,8 @@
 #   STUDIO_DPI                 Windows DPI applied on every start: 96 = 100 %, 144 = 150 %, 192 = 200 %
 #   STUDIO_VIRTUAL_DESKTOP     e.g. 2560x1440; runs Studio inside a Wine virtual desktop window,
 #                              which avoids the focus/alt-tab problems Studio has as a plain X11 window
-#   STUDIO_UNATTENDED_INSTALL  1 = install silently, accepting BrickLink's license agreement
-#                              without displaying it; meant for CI, not for people
+#   STUDIO_UNATTENDED_INSTALL  1 = accept BrickLink's license agreement without displaying it;
+#                              meant for CI, not for people
 set -euo pipefail
 
 installer=/app/extra/Studio+2.0.exe
@@ -24,14 +25,53 @@ installed_marker="$WINEPREFIX/.installed-installer.sha256"
 
 log() { printf 'bricklink-studio: %s\n' "$*" >&2; }
 
+progress_fd=""
+
+# Opens a zenity progress window fed by progress_write; without a display none appears.
+progress_open() {
+    local text=$1
+    shift
+    log "$text"
+    exec {progress_fd}> >(exec zenity --progress --auto-close --no-cancel --width=400 \
+        --title="BrickLink Studio" --text="$text" "$@" 2>/dev/null)
+}
+
+progress_write() {
+    # In a subshell, so SIGPIPE from a window the user closed doesn't stop the launcher.
+    ( printf '%s\n' "$1" >&"$progress_fd" ) 2>/dev/null || true
+}
+
+# Shows TEXT in a pulsating progress window, for slow steps that have no window of their own.
+progress() {
+    if [[ -z "$progress_fd" ]]; then
+        progress_open "$1" --pulsate
+        return 0
+    fi
+    log "$1"
+    progress_write "# $1"
+}
+
+progress_done() {
+    [[ -n "$progress_fd" ]] || return 0
+    progress_write 100
+    exec {progress_fd}>&-
+    progress_fd=""
+}
+
 init_prefix() {
     [[ -f "$WINEPREFIX/system.reg" ]] && return 0
-    log "creating Wine prefix in $WINEPREFIX"
+    progress "Setting up Wine for the first start…"
     wineboot --init
     wineserver -w
 
     # Without the MS core fonts Studio's UI renders with substitute fonts and clipped labels.
+    # This Wine is 64-bit only; with the empty syswow64 hidden, winetricks skips the 32-bit regedit.
+    progress "Installing Microsoft core fonts…"
+    local syswow64="$WINEPREFIX/drive_c/windows/syswow64"
+    mv "$syswow64" "$syswow64.hidden"
     winetricks -q corefonts || log "corefonts install failed; continuing without them"
+    mv "$syswow64.hidden" "$syswow64"
+    progress_done
 }
 
 wine_user_dir() {
@@ -90,34 +130,53 @@ studio_running() {
     grep -qaF 'Studio 2.0\Studio.exe' /proc/[0-9]*/cmdline 2>/dev/null
 }
 
+# Before the first install the user must accept the license agreement embedded in the installer.
+accept_license() {
+    [[ -f "$studio_exe" || "${STUDIO_UNATTENDED_INSTALL:-0}" == 1 ]] && return 0
+
+    if ! innoextract --silent --show-license "$installer" | sed '1s/^\xEF\xBB\xBF//' | tr -d '\r' |
+        zenity --text-info --title="BrickLink Studio license agreement" --width=700 --height=600 \
+            --checkbox="I accept the terms of the license agreement" 2>/dev/null; then
+        log "license agreement not accepted; not installing Studio"
+        exit 1
+    fi
+}
+
 install_if_needed() {
     local wanted current=""
     wanted=$(<"$installer_hash_file")
     [[ -f "$installed_marker" ]] && current=$(<"$installed_marker")
     [[ -f "$studio_exe" && "$wanted" == "$current" ]] && return 0
 
-    local args=(/SP- /NORESTART)
-    if [[ "${STUDIO_UNATTENDED_INSTALL:-0}" == 1 ]]; then
-        args+=(/VERYSILENT /SUPPRESSMSGBOXES)
-    elif [[ -f "$studio_exe" ]]; then
-        # Upgrade: progress window only. The license agreement was shown on the first install.
-        args+=(/SILENT)
+    if studio_running; then
+        log "Studio is already running; installing the update on the next start"
+        return 0
     fi
 
-    log "running the Studio installer"
-    wine "$installer" "${args[@]}"
+    # The installer only copies files to {app}, which innoextract writes to DIR/app. Its other
+    # entries (shortcuts, GPU timeout registry values, starting Studio) don't apply here.
+    local program_files="$WINEPREFIX/drive_c/Program Files"
+    mkdir -p "$studio_dir"
+    ln -sfn "${studio_dir##*/}" "$program_files/app"
 
-    if [[ ! -f "$studio_exe" ]]; then
-        log "installer finished but $studio_exe is missing (cancelled, or installed elsewhere)"
+    progress_open "Installing BrickLink Studio…"
+    local frame
+    if ! innoextract --silent --progress=1 --exclude-temp --output-dir "$program_files" "$installer" 2>&1 |
+        tr '\r' '\n' | while IFS= read -r frame; do
+            if [[ "$frame" =~ ([0-9]+)\.[0-9]% ]]; then
+                progress_write "${BASH_REMATCH[1]}"
+            elif [[ -n "$frame" ]]; then
+                log "$frame"
+            fi
+        done; then
+        progress_done
+        log "extracting $installer failed"
         exit 1
     fi
-    printf '%s\n' "$wanted" > "$installed_marker"
+    progress_done
 
-    # The interactive installer can start Studio on its last page; don't open a second copy.
-    if studio_running; then
-        wineserver -w
-        exit 0
-    fi
+    rm -f "$program_files/app"
+    printf '%s\n' "$wanted" > "$installed_marker"
 }
 
 apply_dpi() {
@@ -139,6 +198,7 @@ run_studio() {
     exec wine "$studio_exe" "${args[@]}"
 }
 
+accept_license
 init_prefix
 link_user_folders
 install_if_needed

@@ -13,12 +13,12 @@ Not affiliated with, endorsed or supported by BrickLink or the LEGO Group.
 
 ## How it works
 
-- **First start** creates a private Wine prefix in
-  `~/.var/app/io.github.mdarocha.BrickLinkStudio/data/prefix`, installs the MS core fonts and
-  opens BrickLink's installer, including its license agreement. Click through with the default
-  install location.
-- **App updates** ship a new installer; on the next start the launcher notices it changed and runs
-  it again silently over the existing install.
+- **First start** shows BrickLink's license agreement. Once you accept it, the app creates a
+  private Wine prefix in `~/.var/app/io.github.mdarocha.bricklink-studio-flatpak/data/prefix`,
+  installs the MS core fonts and unpacks Studio from BrickLink's installer, with a progress window
+  for each step. This takes a few minutes.
+- **App updates** ship a new installer; on the next start the launcher notices it changed and
+  unpacks it over the existing install.
 - **Your folders**: Wine's Documents, Pictures and Downloads are symlinked to your real XDG
   folders, read from `~/.config/user-dirs.dirs`, so localized names like `~/Dokumenty` work.
   Models land where you'd expect, and renders can go straight to Pictures. Those three folders
@@ -33,7 +33,7 @@ The runtime comes from Flathub, so add it first if you don't have it:
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak remote-add --user --if-not-exists bricklink-studio \
     https://mdarocha.github.io/bricklink-studio-flatpak/bricklink-studio.flatpakrepo
-flatpak install --user bricklink-studio io.github.mdarocha.BrickLinkStudio
+flatpak install --user bricklink-studio io.github.mdarocha.bricklink-studio-flatpak
 ```
 
 After the remote is added the app also shows up in GNOME Software and KDE Discover, and updates
@@ -42,7 +42,7 @@ arrive with `flatpak update`. The landing page at
 
 ## Options
 
-Set with `flatpak override --user --env=NAME=value io.github.mdarocha.BrickLinkStudio`:
+Set with `flatpak override --user --env=NAME=value io.github.mdarocha.bricklink-studio-flatpak`:
 
 | Variable | Effect |
 |---|---|
@@ -53,8 +53,8 @@ Set with `flatpak override --user --env=NAME=value io.github.mdarocha.BrickLinkS
 Wine tools work through `--command`:
 
 ```sh
-flatpak run --command=winecfg io.github.mdarocha.BrickLinkStudio
-flatpak run --command=winetricks io.github.mdarocha.BrickLinkStudio <verb>
+flatpak run --command=winecfg io.github.mdarocha.bricklink-studio-flatpak
+flatpak run --command=winetricks io.github.mdarocha.bricklink-studio-flatpak <verb>
 ```
 
 ## Updates
@@ -70,17 +70,31 @@ across reinstalls.
 ## Uninstall
 
 ```sh
-flatpak uninstall --delete-data io.github.mdarocha.BrickLinkStudio
+flatpak uninstall --delete-data io.github.mdarocha.bricklink-studio-flatpak
 ```
 
 This removes the prefix. Models in your Documents folder stay.
 
+## Support
+
+BrickLink doesn't support this package, so please don't contact them about it.
+
+- Problems with the packaging, such as installing, the first start, Wine, folders, `.io` files or
+  a Studio feature that works on Windows but not here: [open an issue](https://github.com/mdarocha/bricklink-studio-flatpak/issues/new/choose)
+  with the output of `flatpak run io.github.mdarocha.bricklink-studio-flatpak` from a terminal.
+- Problems with Studio itself, such as bugs that also happen on Windows, your BrickLink account,
+  parts or the gallery: BrickLink's [Studio Help Center](https://studiohelp.bricklink.com/hc/en-us)
+  and forum.
+
 ## License
 
-The files in this repository are under the MIT license (see `LICENSE`). The app and file icons are
-original drawings made for this package.
+The files in this repository are under the MIT license (see `LICENSE`), except the innoextract
+patch in `patches/`, which is under innoextract's zlib license. The app and file icons are original
+drawings made for this package. The published Flatpak also contains Wine and innoextract; the
+[sources page](https://mdarocha.github.io/bricklink-studio-flatpak/sources.html) lists the exact
+sources of everything in it.
 
 BrickLink Studio is proprietary software by BrickLink, distributed under its own license
-agreement, which its installer shows on first start. LEGO is a trademark of the LEGO Group.
+agreement, which the app shows on first start. LEGO is a trademark of the LEGO Group.
 
 Building from source and maintenance notes: [docs/maintainers-notes.md](docs/maintainers-notes.md).

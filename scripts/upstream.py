@@ -20,9 +20,10 @@ import pathlib
 import re
 import sys
 import urllib.request
+import xml.sax.saxutils
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-APP_ID = "io.github.mdarocha.BrickLinkStudio"
+APP_ID = "io.github.mdarocha.bricklink-studio-flatpak"
 MANIFEST = ROOT / f"{APP_ID}.yml"
 METAINFO = ROOT / "data" / f"{APP_ID}.metainfo.xml"
 
@@ -38,7 +39,7 @@ def open_url(url):
 
 
 def fetch_releases():
-    """Returns [(version, date or None)] in the order BrickLink lists them, oldest first."""
+    """Returns [(version, date or None, [release notes])] in the order BrickLink lists them, oldest first."""
     with open_url(VERSION_LIST_URL) as response:
         text = response.read().decode("utf-8-sig", "replace")
 
@@ -50,11 +51,13 @@ def fetch_releases():
         if line == "All-In-One Version":
             break
         if m := re.fullmatch(r"0 (\S+)", line):
-            releases.append([m[1], None])
+            releases.append([m[1], None, []])
         elif releases and releases[-1][1] is None and (m := re.fullmatch(r"4 (\d+)\.(\d+)\.(\d+)(?:\.\d+)?", line)):
             year, month, day = map(int, m.groups())
             releases[-1][1] = datetime.date(2000 + year, month, day)
-    return [(v, d) for v, d in releases if VERSION_RE.fullmatch(v)]
+        elif releases and (m := re.fullmatch(r"[1-3] (.+)", line)):
+            releases[-1][2].append(m[1])
+    return [(v, d, notes) for v, d, notes in releases if VERSION_RE.fullmatch(v)]
 
 
 def read_extra_data():
@@ -92,7 +95,7 @@ def write_outputs(**values):
                 f.write(f"{key}={value}\n")
 
 
-def add_release(version, date):
+def add_release(version, date, notes):
     text = METAINFO.read_text()
     if f'<release version="{version}"' in text:
         return
@@ -101,16 +104,17 @@ def add_release(version, date):
         sys.exit(f"no <releases> element in {METAINFO.name}")
     pad = m["indent"] + "  "
     date_attr = f' date="{date.isoformat()}"' if date else ""
-    entry = (
-        f'{pad}<release version="{version}"{date_attr}>\n'
-        f'{pad}  <url type="details">{RELEASE_DETAILS_URL}</url>\n'
-        f"{pad}</release>\n"
-    )
+    entry = f'{pad}<release version="{version}"{date_attr}>\n'
+    entry += f'{pad}  <url type="details">{RELEASE_DETAILS_URL}</url>\n'
+    if notes:
+        items = "".join(f"{pad}      <li>{xml.sax.saxutils.escape(note)}</li>\n" for note in notes)
+        entry += f"{pad}  <description>\n{pad}    <ul>\n{items}{pad}    </ul>\n{pad}  </description>\n"
+    entry += f"{pad}</release>\n"
     METAINFO.write_text(text[: m.end()] + entry + text[m.end() :])
 
 
 def cmd_check(_args):
-    latest, _ = fetch_releases()[-1]
+    latest = fetch_releases()[-1][0]
     _, _, fields = read_extra_data()
     current = version_from_url(fields["url"])
     print(f"upstream: {latest}\nmanifest: {current}")
@@ -118,9 +122,8 @@ def cmd_check(_args):
 
 
 def cmd_update(args):
-    releases = fetch_releases()
-    dates = dict(releases)
-    version = args.version or releases[-1][0]
+    releases = {v: (d, notes) for v, d, notes in fetch_releases()}
+    version = args.version or list(releases)[-1]
     if not VERSION_RE.fullmatch(version):
         sys.exit(f"not a Studio version: {version}")
 
@@ -140,7 +143,7 @@ def cmd_update(args):
     for key, value in (("url", url), ("sha256", sha256), ("size", size)):
         new_block = re.sub(rf"^(\s+{key}: )\S+$", lambda m: f"{m[1]}{value}", new_block, count=1, flags=re.MULTILINE)
     MANIFEST.write_text(text.replace(block, new_block))
-    add_release(version, dates.get(version))
+    add_release(version, *releases.get(version, (None, [])))
 
     print(f"manifest: {current} -> {version} (sha256 {sha256}, {size} bytes)")
     write_outputs(version=version, current=current, updated="true")

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 mdarocha -->
+<component type="desktop-application">
+  <id>io.github.mdarocha.bricklink-studio-flatpak</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary=https://studiohelp.bricklink.com/hc/en-us/articles/6606313426711-Studio-Software-License-Agreement</project_license>
+
+  <name>BrickLink Studio</name>
+  <summary>Build digital brick models</summary>
+  <summary xml:lang="cs">Stavějte digitální modely z kostek</summary>
+  <summary xml:lang="de">Digitale Steinmodelle bauen</summary>
+  <summary xml:lang="es">Construye modelos digitales de ladrillos</summary>
+  <summary xml:lang="fr">Construisez des modèles en briques numériques</summary>
+  <summary xml:lang="it">Costruisci modelli digitali a mattoncini</summary>
+  <summary xml:lang="nl">Bouw digitale modellen van steentjes</summary>
+  <summary xml:lang="pl">Buduj cyfrowe modele z klocków</summary>
+  <summary xml:lang="pt_BR">Construa modelos digitais de blocos</summary>
+
+  <developer id="com.bricklink">
+    <name>BrickLink</name>
+  </developer>
+
+  <description>
+    <p>**This is an unofficial package that runs the Windows version of BrickLink Studio with Wine. The first start shows BrickLink’s license agreement, then takes several minutes to set up Wine and install Studio.**</p>
+    <p xml:lang="cs">**Toto je neoficiální balíček, který spouští verzi BrickLink Studia pro Windows pomocí Wine. Při prvním spuštění se zobrazí licenční smlouva BrickLink a poté trvá několik minut, než se připraví Wine a nainstaluje Studio.**</p>
+    <p xml:lang="de">**Dies ist ein inoffizielles Paket, das die Windows-Version von BrickLink Studio mit Wine ausführt. Beim ersten Start wird die Lizenzvereinbarung von BrickLink angezeigt; danach dauert es einige Minuten, Wine einzurichten und Studio zu installieren.**</p>
+    <p xml:lang="es">**Este es un paquete no oficial que ejecuta la versión para Windows de BrickLink Studio con Wine. El primer inicio muestra el acuerdo de licencia de BrickLink y después tarda varios minutos en configurar Wine e instalar Studio.**</p>
+    <p xml:lang="fr">**Ce paquet non officiel exécute la version Windows de BrickLink Studio avec Wine. Le premier lancement affiche le contrat de licence de BrickLink, puis prend plusieurs minutes pour configurer Wine et installer Studio.**</p>
+    <p xml:lang="it">**Questo è un pacchetto non ufficiale che esegue la versione per Windows di BrickLink Studio tramite Wine. Il primo avvio mostra il contratto di licenza di BrickLink e poi richiede alcuni minuti per configurare Wine e installare Studio.**</p>
+    <p xml:lang="nl">**Dit is een onofficieel pakket dat de Windows-versie van BrickLink Studio met Wine draait. Bij de eerste start verschijnt de licentieovereenkomst van BrickLink; daarna duurt het enkele minuten om Wine in te stellen en Studio te installeren.**</p>
+    <p xml:lang="pl">**To nieoficjalny pakiet, który uruchamia wersję BrickLink Studio dla Windows za pomocą Wine. Przy pierwszym uruchomieniu wyświetla się umowa licencyjna BrickLink, a potem przygotowanie Wine i instalacja Studio trwają kilka minut.**</p>
+    <p xml:lang="pt_BR">**Este é um pacote não oficial que executa a versão para Windows do BrickLink Studio com o Wine. A primeira execução mostra o contrato de licença da BrickLink e depois leva alguns minutos para configurar o Wine e instalar o Studio.**</p>
+    <p>Studio is BrickLink’s digital brick building software, powered by the LEGO Group. Build with an unlimited supply of virtual LEGO parts, turn designs into instructions and renders, and buy the parts to build them for real.</p>
+    <p xml:lang="cs">Studio je software od BrickLink pro digitální stavění z kostek, za nímž stojí skupina LEGO. Stavějte z neomezené zásoby virtuálních dílů LEGO, vytvářejte z návrhů návody a rendery a kupte si díly, abyste je postavili doopravdy.</p>
+    <p xml:lang="de">Studio ist die Software von BrickLink zum digitalen Bauen mit Steinen, unterstützt von der LEGO Gruppe. Baue mit unbegrenzt vielen virtuellen LEGO-Teilen, erstelle aus deinen Modellen Anleitungen und Renderings und kaufe die Teile, um sie wirklich zu bauen.</p>
+    <p xml:lang="es">Studio es el software de construcción digital con ladrillos de BrickLink, respaldado por el Grupo LEGO. Construye con un suministro ilimitado de piezas LEGO virtuales, convierte tus diseños en instrucciones y renders, y compra las piezas para construirlos de verdad.</p>
+    <p xml:lang="fr">Studio est le logiciel de construction numérique en briques de BrickLink, soutenu par le groupe LEGO. Construisez avec une réserve illimitée de pièces LEGO virtuelles, transformez vos créations en instructions et en rendus, et achetez les pièces pour les construire en vrai.</p>
+    <p xml:lang="it">Studio è il software di BrickLink per costruire digitalmente con i mattoncini, supportato dal Gruppo LEGO. Costruisci con una scorta illimitata di pezzi LEGO virtuali, trasforma i tuoi progetti in istruzioni e rendering e acquista i pezzi per costruirli davvero.</p>
+    <p xml:lang="nl">Studio is de software van BrickLink om digitaal met steentjes te bouwen, ondersteund door de LEGO Groep. Bouw met een onbeperkte voorraad virtuele LEGO-onderdelen, maak van je ontwerpen instructies en renders en koop de onderdelen om ze echt te bouwen.</p>
+    <p xml:lang="pl">Studio to oprogramowanie BrickLink do cyfrowego budowania z klocków, wspierane przez LEGO Group. Buduj z nieograniczonej liczby wirtualnych części LEGO, zamieniaj projekty w instrukcje i rendery, a potem kup części, żeby zbudować je naprawdę.</p>
+    <p xml:lang="pt_BR">O Studio é o software de construção digital com blocos da BrickLink, com o apoio do Grupo LEGO. Construa com um estoque ilimitado de peças LEGO virtuais, transforme seus projetos em instruções e renderizações e compre as peças para montá-los de verdade.</p>
+    <ul>
+      <li>Snap parts together by stacking them or joining them with hinges and clips</li>
+      <li xml:lang="cs">Spojujte díly skládáním na sebe nebo pomocí pantů a klipů</li>
+      <li xml:lang="de">Teile stapeln oder mit Scharnieren und Clips verbinden</li>
+      <li xml:lang="es">Encaja piezas apilándolas o uniéndolas con bisagras y clips</li>
+      <li xml:lang="fr">Assemblez les pièces en les empilant ou avec des charnières et des clips</li>
+      <li xml:lang="it">Unisci i pezzi impilandoli o collegandoli con cerniere e clip</li>
+      <li xml:lang="nl">Klik onderdelen aan elkaar door ze te stapelen of met scharnieren en clips</li>
+      <li xml:lang="pl">Łącz części, układając je na sobie albo spinając zawiasami i klipsami</li>
+      <li xml:lang="pt_BR">Encaixe peças empilhando-as ou unindo-as com dobradiças e clipes</li>
+      <li>Create print-ready building instructions</li>
+      <li xml:lang="cs">Tvořte stavební návody připravené k tisku</li>
+      <li xml:lang="de">Druckfertige Bauanleitungen erstellen</li>
+      <li xml:lang="es">Crea instrucciones de montaje listas para imprimir</li>
+      <li xml:lang="fr">Créez des instructions de montage prêtes à imprimer</li>
+      <li xml:lang="it">Crea istruzioni di montaggio pronte per la stampa</li>
+      <li xml:lang="nl">Maak bouwinstructies die klaar zijn om te printen</li>
+      <li xml:lang="pl">Twórz instrukcje budowy gotowe do druku</li>
+      <li xml:lang="pt_BR">Crie instruções de montagem prontas para impressão</li>
+      <li>Render photorealistic images and building-sequence videos</li>
+      <li xml:lang="cs">Renderujte fotorealistické obrázky a videa s postupem stavby</li>
+      <li xml:lang="de">Fotorealistische Bilder und Videos vom Bauablauf rendern</li>
+      <li xml:lang="es">Renderiza imágenes fotorrealistas y vídeos del proceso de construcción</li>
+      <li xml:lang="fr">Faites le rendu d’images photoréalistes et de vidéos de la construction pas à pas</li>
+      <li xml:lang="it">Crea rendering fotorealistici e video della sequenza di costruzione</li>
+      <li xml:lang="nl">Render fotorealistische afbeeldingen en video’s van de bouwvolgorde</li>
+      <li xml:lang="pl">Renderuj fotorealistyczne obrazy i filmy z kolejnymi etapami budowy</li>
+      <li xml:lang="pt_BR">Renderize imagens fotorrealistas e vídeos da sequência de montagem</li>
+      <li>Turn photos into mosaics and 3D models into brick sculptures</li>
+      <li xml:lang="cs">Proměňte fotky v mozaiky a 3D modely v sochy z kostek</li>
+      <li xml:lang="de">Fotos in Mosaike und 3D-Modelle in Steinskulpturen verwandeln</li>
+      <li xml:lang="es">Convierte fotos en mosaicos y modelos 3D en esculturas de ladrillos</li>
+      <li xml:lang="fr">Transformez des photos en mosaïques et des modèles 3D en sculptures en briques</li>
+      <li xml:lang="it">Trasforma foto in mosaici e modelli 3D in sculture di mattoncini</li>
+      <li xml:lang="nl">Maak van foto’s mozaïeken en van 3D-modellen sculpturen van steentjes</li>
+      <li xml:lang="pl">Zamieniaj zdjęcia w mozaiki, a modele 3D w rzeźby z klocków</li>
+      <li xml:lang="pt_BR">Transforme fotos em mosaicos e modelos 3D em esculturas de blocos</li>
+      <li>Build from a reference image</li>
+      <li xml:lang="cs">Stavějte podle referenčního obrázku</li>
+      <li xml:lang="de">Nach einem Referenzbild bauen</li>
+      <li xml:lang="es">Construye siguiendo una imagen de referencia</li>
+      <li xml:lang="fr">Construisez en suivant une image de référence</li>
+      <li xml:lang="it">Costruisci seguendo un’immagine di riferimento</li>
+      <li xml:lang="nl">Bouw na aan de hand van een referentieafbeelding</li>
+      <li xml:lang="pl">Buduj według obrazu referencyjnego</li>
+      <li xml:lang="pt_BR">Monte seguindo uma imagem de referência</li>
+      <li>See what a design costs and buy its parts on BrickLink</li>
+      <li xml:lang="cs">Zjistěte, kolik návrh stojí, a kupte jeho díly na BrickLink</li>
+      <li xml:lang="de">Sehen, was ein Modell kostet, und die Teile auf BrickLink kaufen</li>
+      <li xml:lang="es">Consulta cuánto cuesta un diseño y compra sus piezas en BrickLink</li>
+      <li xml:lang="fr">Voyez combien coûte une création et achetez ses pièces sur BrickLink</li>
+      <li xml:lang="it">Scopri quanto costa un progetto e acquistane i pezzi su BrickLink</li>
+      <li xml:lang="nl">Zie wat een ontwerp kost en koop de onderdelen op BrickLink</li>
+      <li xml:lang="pl">Sprawdzaj, ile kosztuje projekt, i kupuj jego części w BrickLink</li>
+      <li xml:lang="pt_BR">Veja quanto custa um projeto e compre as peças na BrickLink</li>
+      <li>Share designs in the Studio Gallery</li>
+      <li xml:lang="cs">Sdílejte návrhy v Galerii Studia</li>
+      <li xml:lang="de">Modelle in der Studio-Galerie teilen</li>
+      <li xml:lang="es">Comparte diseños en la Galería de Studio</li>
+      <li xml:lang="fr">Partagez vos créations dans la galerie Studio</li>
+      <li xml:lang="it">Condividi i progetti nella Galleria di Studio</li>
+      <li xml:lang="nl">Deel ontwerpen in de Studio-galerij</li>
+      <li xml:lang="pl">Udostępniaj projekty w Galerii Studio</li>
+      <li xml:lang="pt_BR">Compartilhe projetos na Galeria do Studio</li>
+    </ul>
+    <p>This package is not made, endorsed or supported by BrickLink or the LEGO Group, so report problems with it on GitHub, not to BrickLink. Photorealistic rendering uses the CPU, because GPU (CUDA) rendering does not work under Wine.</p>
+    <p xml:lang="cs">Tento balíček není vytvořen, schválen ani podporován společností BrickLink ani skupinou LEGO, takže problémy s ním hlaste na GitHubu, ne společnosti BrickLink. Fotorealistické renderování běží na procesoru, protože renderování na GPU (CUDA) ve Wine nefunguje.</p>
+    <p xml:lang="de">Dieses Paket wird weder von BrickLink noch von der LEGO Gruppe erstellt, empfohlen oder unterstützt; melde Probleme damit daher auf GitHub, nicht bei BrickLink. Fotorealistisches Rendern läuft auf der CPU, da GPU-Rendern (CUDA) unter Wine nicht funktioniert.</p>
+    <p xml:lang="es">Este paquete no está creado, respaldado ni soportado por BrickLink ni por el Grupo LEGO, así que informa de sus problemas en GitHub, no a BrickLink. El renderizado fotorrealista usa la CPU, porque el renderizado por GPU (CUDA) no funciona en Wine.</p>
+    <p xml:lang="fr">Ce paquet n’est ni créé, ni approuvé, ni pris en charge par BrickLink ou le groupe LEGO : signalez donc ses problèmes sur GitHub, pas à BrickLink. Le rendu photoréaliste utilise le processeur, car le rendu GPU (CUDA) ne fonctionne pas sous Wine.</p>
+    <p xml:lang="it">Questo pacchetto non è realizzato, approvato né supportato da BrickLink o dal Gruppo LEGO, quindi segnalane i problemi su GitHub, non a BrickLink. Il rendering fotorealistico usa la CPU, perché il rendering su GPU (CUDA) non funziona con Wine.</p>
+    <p xml:lang="nl">Dit pakket is niet gemaakt, goedgekeurd of ondersteund door BrickLink of de LEGO Groep, dus meld problemen ermee op GitHub, niet bij BrickLink. Fotorealistisch renderen gebruikt de CPU, omdat renderen op de GPU (CUDA) niet werkt onder Wine.</p>
+    <p xml:lang="pl">Ten pakiet nie jest tworzony, zatwierdzany ani wspierany przez BrickLink ani LEGO Group, więc problemy z nim zgłaszaj na GitHubie, nie do BrickLink. Fotorealistyczne renderowanie działa na procesorze, bo renderowanie na GPU (CUDA) nie działa w Wine.</p>
+    <p xml:lang="pt_BR">Este pacote não é feito, endossado nem suportado pela BrickLink ou pelo Grupo LEGO, então relate os problemas dele no GitHub, não à BrickLink. A renderização fotorrealista usa a CPU, porque a renderização por GPU (CUDA) não funciona no Wine.</p>
+  </description>
+
+  <launchable type="desktop-id">io.github.mdarocha.bricklink-studio-flatpak.desktop</launchable>
+
+  <provides>
+    <mediatype>application/x-bricklink-studio</mediatype>
+  </provides>
+
+  <url type="homepage">https://www.bricklink.com/v3/studio/main.page</url>
+  <url type="help">https://studiohelp.bricklink.com/hc/en-us</url>
+  <url type="bugtracker">https://github.com/mdarocha/bricklink-studio-flatpak/issues</url>
+  <url type="vcs-browser">https://github.com/mdarocha/bricklink-studio-flatpak</url>
+
+  <!-- Yellow from BrickLink's Studio pages, which contrasts with the blue icon. -->
+  <branding>
+    <color type="primary" scheme_preference="light">#f7d117</color>
+    <color type="primary" scheme_preference="dark">#7d6a0c</color>
+  </branding>
+
+  <screenshots>
+    <!-- Captured by ci/smoke-test.sh in the Build workflow and published with the Flatpak repo. -->
+    <screenshot type="default">
+      <image>https://mdarocha.github.io/bricklink-studio-flatpak/screenshots/main.png</image>
+      <caption>Welcome screen with sample models</caption>
+      <caption xml:lang="cs">Úvodní obrazovka s ukázkovými modely</caption>
+      <caption xml:lang="de">Startbildschirm mit Beispielmodellen</caption>
+      <caption xml:lang="es">Pantalla de bienvenida con modelos de ejemplo</caption>
+      <caption xml:lang="fr">Écran d’accueil avec des modèles d’exemple</caption>
+      <caption xml:lang="it">Schermata di benvenuto con modelli di esempio</caption>
+      <caption xml:lang="nl">Welkomstscherm met voorbeeldmodellen</caption>
+      <caption xml:lang="pl">Ekran powitalny z przykładowymi modelami</caption>
+      <caption xml:lang="pt_BR">Tela de boas-vindas com modelos de exemplo</caption>
+    </screenshot>
+  </screenshots>
+
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+
+  <!-- Price estimates and BrickLink carts, opt-in Unity Analytics, Studio Gallery likes. -->
+  <content_rating type="oars-1.1">
+    <content_attribute id="money-advertising">intense</content_attribute>
+    <content_attribute id="money-purchasing">intense</content_attribute>
+    <content_attribute id="social-chat">mild</content_attribute>
+    <content_attribute id="social-info">moderate</content_attribute>
+  </content_rating>
+
+  <releases>
+    <release version="2.26.9_1" date="2026-09-30">
+      <url type="details">https://www.bricklink.com/v3/studio/download.page</url>
+      <description>
+        <ul>
+          <li>Flexible part 2630 had missing flex nodes.</li>
+          <li>Tutorial button couldn't be clicked on if background GUI with brick information was behind the start button.</li>
+          <li>Rubber green was rendering as orange in POV-Ray render mode.</li>
+          <li>Horses 112958pb01, 82445pb03, and 82445pb04 would not render in the eyesight renderer.</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+</component>

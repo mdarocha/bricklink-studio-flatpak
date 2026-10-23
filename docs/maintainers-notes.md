@@ -2,16 +2,41 @@
 
 ## Packaging
 
-- **Wine** comes from Flathub's `org.winehq.Wine` base app (branch `stable-25.08`, Wine 11.0,
+- **Wine** comes from Flathub's `org.winehq.Wine` base app (branch `stable-26.08`, Wine 11.0,
   with winetricks). It is copied into this app at build time.
-- **32-bit libraries** for Wine's 32-bit half (Studio's installer is 32-bit) come from Flathub's
-  `org.freedesktop.Platform.Compat.i386`, also copied in at build time. Flatpak installs an app's
-  extensions only from the app's own remote, so users of this remote would never get Flathub's.
-  Wine Mono and Gecko are left out for the same reason; Studio needs neither, and
+- **64-bit only.** Wine's 32-bit side would need a copy of Flathub's i386 runtime (Flatpak
+  installs an app's extensions only from the app's own remote), which doubled the download.
+  Studio and innoextract don't need it; the launcher works around the one place winetricks
+  expects it. Wine Mono and Gecko are left out for the same reason; Studio needs neither, and
   `WINEDLLOVERRIDES` stops Wine from offering to download them.
 - **Studio** is an `extra-data` source: the manifest holds only the URL of the installer in
   BrickLink's versioned archive, its size and its sha256. Flatpak downloads and verifies it at
   install time and puts it in `/app/extra`.
+- **innoextract** unpacks that installer into the Wine prefix in about half a minute; running it
+  under Wine took over ten. The installer is Inno Setup 6.7, which no innoextract release reads, so
+  the manifest builds the head of the upstream PR
+  [dscharrer/innoextract#205](https://github.com/dscharrer/innoextract/pull/205), pinned by commit
+  and checksum and reviewed, plus `patches/innoextract-studio.patch`. The patch keeps the 728 empty
+  files that branch skips and adds `--show-license`, which prints the license agreement the
+  launcher shows before the first install. Besides its files the installer only creates shortcuts,
+  writes three Windows GPU-timeout registry values and offers to start Studio; none of that
+  applies under Wine, and its `[Code]` only runs on uninstall. If a Studio release moves to an
+  Inno Setup version the pinned innoextract can't read, the smoke test of the update PR fails.
+
+## Licensing
+
+- Studio is never redistributed: it's an `extra-data` source, so only its URL, size and checksum
+  are in the published repo, and each user's Flatpak downloads it from BrickLink. CI downloads it
+  to check the checksum and to run the smoke test (BrickLink's license allows internal testing),
+  but uploads only logs and the screenshot, and deletes the Flatpak installation before the Nix
+  cache is saved.
+- The launcher shows the license agreement embedded in the installer and installs only after the
+  user accepts it. `STUDIO_UNATTENDED_INSTALL=1` skips the dialog and is meant for CI.
+- The published repo redistributes Wine and its tools (LGPL/GPL) and innoextract (zlib).
+  `ci/sources-page.py` generates `sources.html` on the Pages site from the manifests
+  flatpak-builder embeds in the app, so the list always matches what was built.
+- The app icon and file icon are original drawings, not BrickLink artwork. The store screenshot
+  shows Studio's UI, including BrickLink's "Featured" banners at the time of the smoke test.
 
 ## Build locally
 
@@ -34,12 +59,12 @@ Other distributions: install `flatpak` and `flatpak-builder` from your package m
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 flatpak-builder --user --install --install-deps-from=flathub --force-clean \
-    build-dir io.github.mdarocha.BrickLinkStudio.yml
-flatpak run io.github.mdarocha.BrickLinkStudio
+    build-dir io.github.mdarocha.bricklink-studio-flatpak.yml
+flatpak run io.github.mdarocha.bricklink-studio-flatpak
 ```
 
-`--install-deps-from` pulls the Freedesktop 25.08 runtime and the Wine base app. The build itself
-copies a handful of files and takes seconds. The installer is downloaded during
+`--install-deps-from` pulls the Freedesktop 26.08 runtime and the Wine base app. The build compiles
+a static Boost and innoextract, which takes a few minutes. The installer is downloaded during
 `--install`, not during the build.
 
 Flatpak can't install a single-file bundle of an extra-data app
@@ -47,17 +72,22 @@ Flatpak can't install a single-file bundle of an extra-data app
 installed from an OSTree repo instead:
 
 ```sh
-flatpak-builder --repo=repo --default-branch=stable --force-clean build-dir io.github.mdarocha.BrickLinkStudio.yml
+flatpak-builder --repo=repo --default-branch=stable --force-clean build-dir io.github.mdarocha.bricklink-studio-flatpak.yml
 flatpak remote-add --user --no-gpg-verify local-build repo
-flatpak install --user local-build io.github.mdarocha.BrickLinkStudio
+flatpak install --user local-build io.github.mdarocha.bricklink-studio-flatpak
 ```
 
 ### Checking metadata
 
 ```sh
-appstreamcli validate --no-net data/io.github.mdarocha.BrickLinkStudio.metainfo.xml
-desktop-file-validate data/io.github.mdarocha.BrickLinkStudio.desktop
+appstreamcli validate --no-net data/io.github.mdarocha.bricklink-studio-flatpak.metainfo.xml
+desktop-file-validate data/io.github.mdarocha.bricklink-studio-flatpak.desktop
+podman run --rm -v "$PWD:/w:Z" -w /w ghcr.io/flathub/flatpak-builder-lint:latest \
+    manifest io.github.mdarocha.bricklink-studio-flatpak.yml
 ```
+
+The linter reports `runtime-update-available` when a new Freedesktop runtime is out. Flathub
+wouldn't accept this app anyway: it only takes Wine-wrapped Windows apps from their upstream.
 
 ## Updates
 
@@ -65,7 +95,8 @@ desktop-file-validate data/io.github.mdarocha.BrickLinkStudio.desktop
 list (`version_Patch_OpenBeta.txt`, the same source winget's updater uses), and if there is a newer
 release it downloads the installer from
 `https://studio.download.bricklink.info/Studio2.0/Archive/<version>/Studio+2.0.exe`, measures its
-size and sha256, rewrites the manifest's extra-data entry and adds a `<release>` to the metainfo.
+size and sha256, rewrites the manifest's extra-data entry and adds a `<release>` with BrickLink's
+release notes to the metainfo.
 It then opens a PR and starts the Build and lockfile workflows on that branch; Build installs the
 result and starts Studio. Merge when it is green; main publishes to the remote.
 
@@ -77,7 +108,7 @@ or locally with `python3 scripts/upstream.py update [--version 2.26.9_1]`.
 | Workflow / job | Runs on | Does |
 |---|---|---|
 | Build / verify-upstream | every push, PR, dispatch | Downloads the installer the manifest points at and checks size and sha256. |
-| Build / build | same | Builds in the Flathub `freedesktop-25.08` container and uploads the OSTree repo as an artifact. On main: signs commits, regenerates the summary and appstream data. |
+| Build / build | same | Builds in the Flathub `freedesktop-26.08` container and uploads the OSTree repo as an artifact. On main: signs commits, regenerates the summary and appstream data. |
 | Build / smoke-test | same | Runs `nix run .#smoke-test` on that repo (see below). |
 | Build / deploy | main only | Publishes the signed OSTree repo, `.flatpakrepo`, `.flatpakref`, icon, screenshot and a landing page to GitHub Pages. |
 | Check for Studio updates | Mondays, dispatch | Opens an update PR as described above. |
@@ -101,14 +132,14 @@ background, 1000x700, default GNOME settings. Nix provides everything except the
 run matches CI:
 
 ```sh
-flatpak-builder --repo=repo --default-branch=stable --force-clean build-dir io.github.mdarocha.BrickLinkStudio.yml
+flatpak-builder --repo=repo --default-branch=stable --force-clean build-dir io.github.mdarocha.bricklink-studio-flatpak.yml
 nix run .#smoke-test -- repo smoke-test
 ```
 
 It uses a throwaway `HOME`, so it downloads the Flathub runtime each time and doesn't touch your
 Flatpak installation. The result is `smoke-test/main.png`; on failure, `failure.png` shows the
-whole screen. Studio's first start (Wine prefix, core fonts, installer) takes about 15 minutes on a
-desktop and 20 to 35 on a GitHub runner.
+whole screen. Studio's first start (Wine prefix, core fonts, innoextract) took about 3 minutes on a
+desktop, about 4 for the whole test.
 
 The extension in `ci/smoke-test/` gives the script a D-Bus API on GNOME Shell to place, click and
 capture the window. Click positions are offsets from the centre of Studio's client area at
@@ -129,20 +160,21 @@ gh actions-lock
 
 Dependabot bumps actions weekly and updates the lockfile in the same PR. The build container is
 pinned by digest, which neither tool updates; refresh it by hand when changing the runtime:
-`skopeo inspect --format '{{.Digest}}' docker://ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08`.
+`skopeo inspect --format '{{.Digest}}' docker://ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08`.
 
 ## Layout
 
 ```
-io.github.mdarocha.BrickLinkStudio.yml   Flatpak manifest
-src/bricklink-studio.sh                  launcher: prefix setup, XDG links, installer, start
-src/apply_extra.sh                       install-time hook for the downloaded installer
-data/                                    desktop entry, metainfo (8 translations), MIME type, app and file icons
-scripts/upstream.py                      check / update / verify the pinned Studio version
-ci/smoke-test.sh                         headless install-and-launch test with screenshot (flake app)
-ci/smoke-test/extension.js               GNOME Shell extension the smoke test drives the window through
-ci/make-site.sh                          builds the GitHub Pages remote
-.github/workflows/                       build.yml, update.yml, verify-lockfile.yml, actions.lock
+io.github.mdarocha.bricklink-studio-flatpak.yml   Flatpak manifest
+src/bricklink-studio.sh       launcher: license prompt, prefix setup, XDG links, innoextract, start
+src/apply_extra.sh            install-time hook for the downloaded installer
+data/                         desktop entry, metainfo (8 translations), MIME type, app and file icons
+patches/                      innoextract patch for Studio's installer
+scripts/upstream.py           check / update / verify the pinned Studio version
+ci/smoke-test.sh              headless install-and-launch test with screenshot (flake app)
+ci/smoke-test/extension.js    GNOME Shell extension the smoke test drives the window through
+ci/make-site.sh               builds the GitHub Pages remote
+.github/workflows/            build.yml, update.yml, verify-lockfile.yml, actions.lock
 ```
 
 ## Known limitations

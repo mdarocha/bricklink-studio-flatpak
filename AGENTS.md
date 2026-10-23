@@ -5,8 +5,9 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
 ## Environment
 
 - The maintainer's machine runs NixOS: there is no `/bin/bash`, so scripts use `#!/usr/bin/env bash`.
-- Experiment with Flatpak in a throwaway `HOME` (`env HOME=/tmp/x flatpak --user ...`) so the
-  maintainer's own installation and `~/.var/app` stay untouched. `ci/smoke-test.sh` does the same.
+- Experiment with Flatpak in a throwaway home so the maintainer's own installation and `~/.var/app`
+  stay untouched. `XDG_DATA_HOME` is set in the maintainer's session and overrides `HOME`, so unset
+  it too: `env -u XDG_DATA_HOME HOME=/tmp/x flatpak --user ...`. `ci/smoke-test.sh` does the same.
 - `pkill -f PATTERN` also matches the shell running it if the pattern is in its command line.
 
 ## Checks after changes
@@ -14,7 +15,7 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
 - `nix build .#smoke-test` runs shellcheck on `ci/smoke-test.sh`.
 - `nix run nixpkgs#actionlint -- .github/workflows/*.yml`.
 - After touching any `uses:`, regenerate the lockfile with `gh actions-lock` (see the maintainer notes).
-- A full smoke test needs network and about 15 minutes locally; CI takes about 30.
+- A full smoke test needs network and about 5 minutes locally.
 
 ## Studio under Wine
 
@@ -30,8 +31,8 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
   Under Mutter the layout reflows properly.
 - The tutorial banner's video doesn't play under Wine (`WindowsVideoMedia error 0x80004001`), which
   leaves an empty box; the smoke test dismisses the banner.
-- First start (Wine prefix, core fonts, single-threaded Inno Setup extraction) takes about 15
-  minutes on a desktop and 20 to 35 on a GitHub runner.
+- First start (Wine prefix, core fonts, innoextract) takes about 3 minutes on a desktop. With the
+  Wine-run Inno Setup installer it took 15 locally and 20 to 35 on a GitHub runner.
 
 ## Headless GNOME Shell
 
