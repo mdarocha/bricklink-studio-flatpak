@@ -109,6 +109,9 @@ jobs:
         with:
           name: smoke-test
           path: smoke-test/
+      # Before nix-magic-setup's post steps, which save the cache from the same volume.
+      - run: sudo rm -rf /nix/tmp
+        if: always()
 
   deploy:
     name: Publish Flatpak remote to GitHub Pages
@@ -130,8 +133,9 @@ jobs:
         with:
           name: ostree-repo
 
+      # A screenshot from a failed run may show a dialog or a half-loaded window.
       - uses: actions/download-artifact@v8.0.2
-        continue-on-error: true
+        if: needs.smoke-test.result == 'success'
         with:
           name: smoke-test
           path: smoke-test

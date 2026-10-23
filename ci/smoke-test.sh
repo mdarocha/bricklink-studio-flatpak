@@ -16,7 +16,7 @@ dismiss_tutorial=(377 -44)
 # Empty sidebar space; anywhere else leaves a hover highlight in the screenshot.
 idle_pointer=(-370 230)
 
-# Studio's installer alone takes over 30 minutes on a GitHub-hosted runner.
+# First start took 20 to 35 minutes on GitHub-hosted runners.
 window_timeout_s=2700
 startup_timeout_s=300
 

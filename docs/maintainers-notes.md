@@ -107,7 +107,8 @@ nix run .#smoke-test -- repo smoke-test
 
 It uses a throwaway `HOME`, so it downloads the Flathub runtime each time and doesn't touch your
 Flatpak installation. The result is `smoke-test/main.png`; on failure, `failure.png` shows the
-whole screen. Studio's installer takes about 5 minutes on a desktop and over 30 on a GitHub runner.
+whole screen. Studio's first start (Wine prefix, core fonts, installer) takes about 15 minutes on a
+desktop and 20 to 35 on a GitHub runner.
 
 The extension in `ci/smoke-test/` gives the script a D-Bus API on GNOME Shell to place, click and
 capture the window. Click positions are offsets from the centre of Studio's client area at

@@ -29,8 +29,8 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
   Under Mutter the layout reflows properly.
 - The tutorial banner's video doesn't play under Wine (`WindowsVideoMedia error 0x80004001`), which
   leaves an empty box; the smoke test dismisses the banner.
-- The Inno Setup installer extracts single-threaded: about 5 minutes on a desktop, over 30 on a
-  GitHub runner.
+- First start (Wine prefix, core fonts, single-threaded Inno Setup extraction) takes about 15
+  minutes on a desktop and 20 to 35 on a GitHub runner.
 
 ## Headless GNOME Shell
 
@@ -42,3 +42,11 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
   title bar buttons) that would make screenshots differ from GNOME defaults.
 - The extension's `shell-version` comes from nixpkgs' gnome-shell in `flake.nix`, so a flake.lock
   bump to a new GNOME major needs no manual change, but may need API fixes in `extension.js`.
+- `dbus-run-session` with nixpkgs' default config also loads `/etc/dbus-1` and fails on Ubuntu
+  runners, where that file doesn't exist; `flake.nix` passes its own minimal config.
+
+## GitHub runners
+
+- nix-magic-setup's Nix volume sits on the same disk as `/`, leaving `/` with a few hundred MB.
+  Anything large (the Flatpak installation, the Wine prefix, a cache-nix-action archive) has to
+  live under `/nix`; the smoke-test job sets `TMPDIR=/nix/tmp` and uses the hestia cache.
