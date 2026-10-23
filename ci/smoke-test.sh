@@ -116,8 +116,15 @@ wait_for_log 'Executing step: .*CheckUnityAnalyticsConsentStep' "$startup_timeou
 shell_call PlaceWindow "'$wm_class'" "int32 ${window_size[0]}" "int32 ${window_size[1]}" >/dev/null
 # Also lets the consent dialog fade in.
 sleep 10
-click "${decline_tracking[@]}"
-wait_for_log 'Completed step: .*CheckUnityAnalyticsConsentStep' 60
+# A click before the dialog takes input is lost on slow runners; retry until it closes.
+for _ in 1 2 3 4 5 6; do
+    click "${decline_tracking[@]}"
+    sleep 10
+    if grep -qE 'Completed step: .*CheckUnityAnalyticsConsentStep' "$out/studio.log"; then
+        break
+    fi
+done
+wait_for_log 'Completed step: .*CheckUnityAnalyticsConsentStep' 10
 # The first initialization sequence only loads the Build Mode scene, whose sequence opens the welcome screen.
 wait_for_log 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$startup_timeout_s"
 
