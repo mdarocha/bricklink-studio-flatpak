@@ -1,0 +1,32 @@
+name: Packaging problem
+description: Installing, first start, Wine, folders, .io files, or something that works on Windows but not here
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happens
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Does it also happen on Windows?
+      description: If it does, it's a Studio bug; report it to BrickLink instead.
+      options:
+        - "No, it only happens with this package"
+        - "Don't know"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Terminal output
+      description: Output of `flatpak run io.github.mdarocha.bricklink-studio-flatpak` started from a terminal.
+      render: text
+  - type: input
+    id: system
+    attributes:
+      label: Distribution, desktop and Flatpak version
+      placeholder: Fedora 44, GNOME 50, Flatpak 1.18.4

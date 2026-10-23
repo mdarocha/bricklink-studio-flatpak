@@ -1,0 +1,150 @@
+From d3389f1cabf8f127fe591dfb8067cd85586b6f1c Mon Sep 17 00:00:00 2001
+From: mdarocha <mdarocha@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 17:25:50 +0200
+Subject: [PATCH] Support extracting Studio+2.0.exe and printing its license
+
+Applies on top of the "Inno 6.7 support" branch (dscharrer/innoextract
+PR #205, head e8960a05). Three independent changes:
+
+1. extract: do not drop data entries that share a chunk and offset.
+
+   process_file() keyed the extraction map by (chunk, stream::file) and
+   overwrote the data entry index on every insert. Zero-byte files all
+   point at the same chunk and offset, so only the last data entry kept
+   its output locations and every other empty file was silently skipped
+   (728 of 75699 files for Studio+2.0.exe, e.g. ldraw/collider/*.col).
+   Use map::insert and, on a collision, move the output locations of
+   the later entry onto the existing one.
+
+2. header: read the license text of Unicode installers as raw bytes.
+
+   Unicode Inno Setup installers store LicenseText as the raw file
+   bytes (UTF-8 with BOM or RTF), but it was decoded as Windows-1252 and
+   converted to UTF-8, producing mojibake (9814 bytes instead of 9705)
+   and an "Unexpected data while converting" warning. Read it with
+   binary_string for Unicode setups, keep ansi_string for ANSI ones.
+
+3. cli: add --show-license.
+
+   Writes header.license_text unmodified to stdout (no conversion, BOM
+   and line endings preserved) so a wrapper can show the EULA without
+   extracting anything. Use together with -s or -q to suppress the
+   "Inspecting ..." banner.
+---
+ src/cli/extract.cpp  | 15 +++++++++++++--
+ src/cli/extract.hpp  |  2 ++
+ src/cli/main.cpp     |  5 ++++-
+ src/setup/header.cpp |  7 ++++++-
+ 4 files changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/src/cli/extract.cpp b/src/cli/extract.cpp
+index c738288..e26fc42 100644
+--- a/src/cli/extract.cpp
++++ b/src/cli/extract.cpp
+@@ -645,7 +645,7 @@ bool print_file_info(const extract_options & o, const setup::info & info) {
+ 	}
+ 	#endif
+ 	
+-	bool multiple_sections = (o.list_languages + o.gog_game_id + o.list + o.show_password > 1);
++	bool multiple_sections = (o.list_languages + o.gog_game_id + o.list + o.show_password + o.show_license > 1);
+ 	if(!o.quiet && multiple_sections) {
+ 		std::cout << '\n';
+ 	}
+@@ -691,6 +691,10 @@ bool print_file_info(const extract_options & o, const setup::info & info) {
+ 		}
+ 	}
+ 	
++	if(o.show_license) {
++		std::cout.write(info.header.license_text.data(), std::streamsize(info.header.license_text.size()));
++	}
++	
+ 	if(o.show_password) {
+ 		if(info.header.options & setup::header::Password) {
+ 			if(o.silent) {
+@@ -1127,7 +1131,14 @@ void process_file(const fs::path & installer, const extract_options & o) {
+ 	for(size_t i = 0; i < info.data_entries.size(); i++) {
+ 		if(!files_for_location[i].empty()) {
+ 			setup::data_entry & location = info.data_entries[i];
+-			chunks[location.chunk][location.file] = i;
++			// Several data entries (e.g. empty files) can share the same chunk and offset
++			std::pair<Files::iterator, bool> inserted = chunks[location.chunk].insert(Files::value_type(location.file, i));
++			if(!inserted.second) {
++				std::vector<output_location> & target = files_for_location[inserted.first->second];
++				target.insert(target.end(), files_for_location[i].begin(), files_for_location[i].end());
++				files_for_location[i].clear();
++				continue;
++			}
+ 			total_size += location.uncompressed_size;
+ 		}
+ 	}
+diff --git a/src/cli/extract.hpp b/src/cli/extract.hpp
+index e6a84d6..4b211ef 100644
+--- a/src/cli/extract.hpp
++++ b/src/cli/extract.hpp
+@@ -66,6 +66,7 @@ struct extract_options {
+ 	bool list_languages; //!< List available languages
+ 	bool gog_game_id; //!< Show the GOG.com game id
+ 	bool show_password; //!< Show password check information
++	bool show_license; //!< Print the setup's license text
+ 	bool check_password; //!< Abort if the provided password is incorrect
+ 	
+ 	bool preserve_file_times; //!< Set timestamps of extracted files
+@@ -104,6 +105,7 @@ struct extract_options {
+ 		, list_languages(false)
+ 		, gog_game_id(false)
+ 		, show_password(false)
++		, show_license(false)
+ 		, check_password(false)
+ 		, preserve_file_times(false)
+ 		, local_timestamps(false)
+diff --git a/src/cli/main.cpp b/src/cli/main.cpp
+index 82b72d3..ea072f3 100644
+--- a/src/cli/main.cpp
++++ b/src/cli/main.cpp
+@@ -139,6 +139,7 @@ int main(int argc, char * argv[]) {
+ 		("list-languages", "List languages supported by the installer")
+ 		("gog-game-id", "Determine the installer's GOG.com game ID")
+ 		("show-password", "Show password check information")
++		("show-license", "Print the license text embedded in the installer")
+ 		("check-password", "Abort if the password is incorrect")
+ 		("data-version,V", "Only print the data version")
+ 		#ifdef DEBUG
+@@ -263,6 +264,7 @@ int main(int argc, char * argv[]) {
+ 	o.list_languages = (options.count("list-languages") != 0);
+ 	o.gog_game_id = (options.count("gog-game-id") != 0);
+ 	o.show_password = (options.count("show-password") != 0);
++	o.show_license = (options.count("show-license") != 0);
+ 	o.check_password = (options.count("check-password") != 0);
+ 	if(options.count("info") != 0) {
+ 		o.list_languages = true;
+@@ -270,7 +272,8 @@ int main(int argc, char * argv[]) {
+ 		o.show_password = true;
+ 	}
+ 	bool explicit_action = o.list || o.test || o.extract || o.list_languages
+-	                       || o.gog_game_id || o.show_password || o.check_password;
++	                       || o.gog_game_id || o.show_password || o.check_password
++	                       || o.show_license;
+ 	if(!explicit_action) {
+ 		o.extract = true;
+ 	}
+diff --git a/src/setup/header.cpp b/src/setup/header.cpp
+index bf23297..f744ad1 100644
+--- a/src/setup/header.cpp
++++ b/src/setup/header.cpp
+@@ -303,7 +303,12 @@ void header::load(std::istream & is, const version & version) {
+ 		use_previous_user_info.clear();
+ 	}
+ 	if(version >= INNO_VERSION(5, 2, 5)) {
+-		is >> util::ansi_string(license_text);
++		if(version.is_unicode()) {
++			// Unicode installers store the raw bytes (UTF-8 with BOM or RTF), not cp1252
++			is >> util::binary_string(license_text);
++		} else {
++			is >> util::ansi_string(license_text);
++		}
+ 		is >> util::ansi_string(info_before);
+ 		is >> util::ansi_string(info_after);
+ 	}
+-- 
+2.56.0
+

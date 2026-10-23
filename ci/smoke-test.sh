@@ -3,7 +3,7 @@
 # its welcome screen; fails if Studio never gets there.
 # Usage: nix run .#smoke-test -- REPO_DIR OUTPUT_DIR (uses a throwaway HOME)
 
-app=io.github.mdarocha.BrickLinkStudio
+app=io.github.mdarocha.bricklink-studio-flatpak
 wm_class=studio.exe
 shell_object=/io/github/mdarocha/BrickLinkStudio/SmokeTest
 shell_interface=io.github.mdarocha.BrickLinkStudio.SmokeTest
@@ -16,7 +16,7 @@ dismiss_tutorial=(377 -44)
 # Empty sidebar space; anywhere else leaves a hover highlight in the screenshot.
 idle_pointer=(-370 230)
 
-# First start took 20 to 35 minutes on GitHub-hosted runners.
+# First start took 3 minutes locally; with the Wine installer it took 20 to 35 on GitHub runners.
 window_timeout_s=2700
 startup_timeout_s=300
 

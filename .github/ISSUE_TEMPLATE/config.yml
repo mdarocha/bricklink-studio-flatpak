@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Problem with Studio itself
+    url: https://studiohelp.bricklink.com/hc/en-us
+    about: Bugs that also happen on Windows, BrickLink accounts, parts and the gallery go to BrickLink's Studio Help Center and forum.

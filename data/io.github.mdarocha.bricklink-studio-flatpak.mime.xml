@@ -13,6 +13,6 @@
     <!-- .io files are ZIP archives; the low weight keeps unrelated .io files from being claimed by name alone. -->
     <sub-class-of type="application/zip"/>
     <glob pattern="*.io" weight="40"/>
-    <icon name="io.github.mdarocha.BrickLinkStudio.model"/>
+    <icon name="io.github.mdarocha.bricklink-studio-flatpak.model"/>
   </mime-type>
 </mime-info>
