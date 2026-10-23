@@ -79,18 +79,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     permissions:
-      # hestia gc deletes stale cache entries.
+      # nix-magic-setup prunes stale Nix store caches.
       actions: write
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: mdarocha/nix-magic-setup@v2.1.0
-        with:
-          # The Nix volume shares /'s disk; without this, / is left with a few hundred MB.
-          free-up-all-storage: true
-          # Uploads only what the job built, so saving the cache needs no space on /.
-          cache-action: hestia
-          hestia-gc: true
       - uses: actions/download-artifact@v8.0.2
         with:
           name: ostree-repo
