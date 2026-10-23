@@ -55,8 +55,9 @@ const INTERFACE = `
   </interface>
 </node>`;
 
-// Unity only registers a click after it has seen the pointer arrive and settle.
-const POINTER_SETTLE_MS = 200;
+// Unity registers a click only after seeing the pointer arrive, and polls input once per frame;
+// with software rendering on CI a frame can take most of a second.
+const POINTER_SETTLE_MS = 1000;
 
 function sleep(ms) {
     return new Promise(resolve => {
