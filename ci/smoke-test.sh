@@ -12,6 +12,7 @@ shell_interface=io.github.mdarocha.BrickLinkStudio.SmokeTest
 window_size=(1000 700)
 # Offsets from the centre of Studio's client area, measured at window_size.
 decline_tracking=(-24 188)
+not_now=(35 45)
 dismiss_tutorial=(377 -44)
 # Empty sidebar space; anywhere else leaves a hover highlight in the screenshot.
 idle_pointer=(-370 230)
@@ -126,7 +127,17 @@ for _ in 1 2 3 4 5 6; do
 done
 wait_for_log 'Completed step: .*CheckUnityAnalyticsConsentStep' 10
 # The first initialization sequence only loads the Build Mode scene, whose sequence opens the welcome screen.
-wait_for_log 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$startup_timeout_s"
+# Studio asks to update whenever a newer release than the packaged one is out, which blocks startup.
+start=$SECONDS
+until grep -qE 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$out/studio.log"; do
+    kill -0 "$studio_pid" 2>/dev/null || fail "Studio exited while waiting for the welcome screen"
+    (( SECONDS - start < startup_timeout_s )) || fail "no welcome screen in Studio's log after ${startup_timeout_s}s"
+    if grep -qE 'Executing step: .*PromptForApplicationUpdateStep' "$out/studio.log" &&
+        ! grep -qE 'Completed step: .*PromptForApplicationUpdateStep' "$out/studio.log"; then
+        click "${not_now[@]}"
+    fi
+    sleep 5
+done
 
 # Featured models and banners load from BrickLink after the welcome screen opens.
 sleep 15
