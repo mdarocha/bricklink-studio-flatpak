@@ -165,6 +165,23 @@
   </content_rating>
 
   <releases>
+    <release version="2.26.10_1" date="2026-10-27">
+      <url type="details">https://www.bricklink.com/v3/studio/download.page</url>
+      <description>
+        <ul>
+          <li>If parts were hidden, opening Physical Information and scrolling through the parts list would expose the hidden parts as they were scrolled through.</li>
+          <li>If flexible part gizmo was behind another part it would appear and then quickly disappear.</li>
+          <li>Typo in Ldraw part replacement toaster in the step editor.</li>
+          <li>In rare cases Page Designer was rendering the pages in all black.</li>
+          <li>Part 14718 connectivity nodes were off center.</li>
+          <li>Part 53923 connectivity nodes were off center.</li>
+          <li>Part 98135 wasn't mirroring.</li>
+          <li>Part 8136 wasn't mirroring.</li>
+          <li>Round 1x1 tiles were fitting on the 4987 backpack with collision errors.</li>
+          <li>Multiple headpieces were not fitting on minifigure heads.</li>
+        </ul>
+      </description>
+    </release>
     <release version="2.26.9_1" date="2026-09-30">
       <url type="details">https://www.bricklink.com/v3/studio/download.page</url>
       <description>
