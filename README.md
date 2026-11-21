@@ -47,7 +47,7 @@ Set with `flatpak override --user --env=NAME=value io.github.mdarocha.bricklink-
 
 | Variable | Effect |
 |---|---|
-| `STUDIO_DPI` | Windows DPI, applied on every start. `144` = 150 %, `192` = 200 %. Wine defaults to 96, which is tiny on 4K screens. |
+| `STUDIO_DPI` | Windows DPI, applied on every start. `144` = 150 %, `192` = 200 %. Defaults to the desktop's X11 DPI (`Xft.dpi`), which follows the display scale. Studio isn't DPI-aware, so above 96 Wine scales its window up and it looks soft. |
 | `STUDIO_VIRTUAL_DESKTOP` | e.g. `3840x2160`. Runs Studio inside a Wine virtual desktop window. Use it if dialogs lose focus or alt-tab freezes Studio. |
 | `STUDIO_UNATTENDED_INSTALL` | `1` installs silently, accepting BrickLink's license agreement without showing it. Meant for CI. |
 
