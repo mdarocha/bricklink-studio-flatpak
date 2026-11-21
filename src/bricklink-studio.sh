@@ -10,7 +10,8 @@
 # Usage: bricklink-studio [MODEL.io ...]
 #
 # Environment:
-#   STUDIO_DPI                 Windows DPI applied on every start: 96 = 100 %, 144 = 150 %, 192 = 200 %
+#   STUDIO_DPI                 Windows DPI applied on every start: 96 = 100 %, 144 = 150 %, 192 = 200 %;
+#                              defaults to the desktop's X11 DPI (Xft.dpi)
 #   STUDIO_VIRTUAL_DESKTOP     e.g. 2560x1440; runs Studio inside a Wine virtual desktop window,
 #                              which avoids the focus/alt-tab problems Studio has as a plain X11 window
 #   STUDIO_UNATTENDED_INSTALL  1 = accept BrickLink's license agreement without displaying it;
@@ -179,9 +180,29 @@ install_if_needed() {
     printf '%s\n' "$wanted" > "$installed_marker"
 }
 
+# Prints the X resource Xft.dpi, which the desktop sets to the DPI X11 apps should render at.
+host_dpi() {
+    python3 - <<'EOF' 2>/dev/null || true
+import ctypes
+
+x11 = ctypes.CDLL("libX11.so.6")
+x11.XOpenDisplay.restype = ctypes.c_void_p
+x11.XResourceManagerString.argtypes = [ctypes.c_void_p]
+x11.XResourceManagerString.restype = ctypes.c_char_p
+
+display = x11.XOpenDisplay(None)
+resources = x11.XResourceManagerString(display) if display else None
+for line in (resources or b"").decode().splitlines():
+    name, _, value = line.partition(":")
+    if name == "Xft.dpi":
+        print(round(float(value)))
+EOF
+}
+
 apply_dpi() {
-    [[ -n "${STUDIO_DPI:-}" ]] || return 0
-    wine reg add 'HKCU\Control Panel\Desktop' /v LogPixels /t REG_DWORD /d "$STUDIO_DPI" /f >/dev/null
+    local dpi=${STUDIO_DPI:-$(host_dpi)}
+    [[ -n "$dpi" ]] || return 0
+    wine reg add 'HKCU\Control Panel\Desktop' /v LogPixels /t REG_DWORD /d "$dpi" /f >/dev/null
 }
 
 run_studio() {
