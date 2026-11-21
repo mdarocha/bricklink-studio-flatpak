@@ -24,7 +24,8 @@ Not affiliated with, endorsed or supported by BrickLink or the LEGO Group.
   Studio's file dialogs open in your home folder, where these folders are.
   Models land where you'd expect, and renders can go straight to Pictures. Those three folders
   are the only parts of your home directory the app can see.
-- **`.io` files** get their own file icon and open in Studio from the file manager.
+- **`.io` files** get their own file icon and open in Studio from the file manager. Studio runs
+  as a single instance, so opening a file while it runs asks to close it first.
 
 ## Install from the Flatpak remote
 

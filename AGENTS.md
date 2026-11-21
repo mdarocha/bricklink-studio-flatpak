@@ -35,6 +35,12 @@ Maintainer docs are in `docs/maintainers-notes.md`. This file covers findings no
   fail, and Unity falls back to software decoding.
 - First start (Wine prefix, core fonts, innoextract) takes about 3 minutes on a desktop. With the
   Wine-run Inno Setup installer it took 15 locally and 20 to 35 on a GitHub runner.
+- Studio is single-instance (`single-instance=` in `Studio_Data/boot.config`): a second
+  `Studio.exe` quits before Mono loads and drops its command-line files. Its file hand-off to a
+  running instance (TCP port in `/var/tmp/blstudio/launcherPort.txt`) is macOS-only.
+- Flatpak instances of the app share one wineserver (a second instance's Studio hits the first
+  one's single-instance mutex) but not a PID namespace. A Studio started right after another
+  instance's Studio quit hung, then died when the old instance's sandbox exited.
 
 ## Headless GNOME Shell
 
