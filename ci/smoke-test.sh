@@ -13,6 +13,7 @@ window_size=(1000 700)
 # Offsets from the centre of Studio's client area, measured at window_size.
 decline_tracking=(-24 188)
 not_now=(35 45)
+backend_error_okay=(141 54)
 dismiss_tutorial=(377 -44)
 # Empty sidebar space; anywhere else leaves a hover highlight in the screenshot.
 idle_pointer=(-370 230)
@@ -20,6 +21,7 @@ idle_pointer=(-370 230)
 # First start took 3 minutes locally; with the Wine installer it took 20 to 35 on GitHub runners.
 window_timeout_s=2700
 startup_timeout_s=300
+backend_error_pattern='Step failed due to an error: .*CheckAndShowAPIStatusPopupStep'
 
 if [[ -z "${SMOKE_TEST_SESSION:-}" ]]; then
     repo=$(realpath "$1")
@@ -136,6 +138,11 @@ until grep -qE 'Completed step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$out/st
         ! grep -qE 'Completed step: .*PromptForApplicationUpdateStep' "$out/studio.log"; then
         click "${not_now[@]}"
     fi
+    # BrickLink's backend sometimes answers 502, which makes Studio show a modal error dialog.
+    if grep -qE "$backend_error_pattern" "$out/studio.log" &&
+        ! grep -qE 'Executing step: .*ShowWelcomeScreenOrOpenEmptyFileStep' "$out/studio.log"; then
+        click "${backend_error_okay[@]}"
+    fi
     sleep 5
 done
 
@@ -151,5 +158,11 @@ click "${dismiss_tutorial[@]}"
 shell_call Hover "'$wm_class'" "int32 ${idle_pointer[0]}" "int32 ${idle_pointer[1]}" >/dev/null
 sleep 5
 
-shell_call CaptureWindow "'$wm_class'" "'$out/main.png'" >/dev/null
-echo "saved $out/main.png after $((SECONDS - start))s"
+# Without BrickLink's backend the welcome screen lacks its banners, so it must not replace the store screenshot.
+screenshot=main.png
+if grep -qE "$backend_error_pattern" "$out/studio.log"; then
+    echo "::warning::BrickLink's backend failed during startup; saving the screenshot as degraded.png"
+    screenshot=degraded.png
+fi
+shell_call CaptureWindow "'$wm_class'" "'$out/$screenshot'" >/dev/null
+echo "saved $out/$screenshot after $((SECONDS - start))s"
