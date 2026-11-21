@@ -5,7 +5,7 @@
 # innoextract on first start, after the user accepts its license agreement, and again whenever an
 # app update ships a different installer. Wine's Documents, Pictures and Downloads folders are
 # linked to the host's XDG folders on every start, so models end up in the real ~/Documents (or
-# its localized equivalent).
+# its localized equivalent), and Wine's Desktop, where file dialogs open, to the home folder.
 #
 # Usage: bricklink-studio [MODEL.io ...]
 #
@@ -92,7 +92,9 @@ xdg_dir() {
         [[ -r "$file" ]] || continue
         value=$(sed -n "s/^${key}=\"\(.*\)\"$/\1/p" "$file" | tail -n 1)
         if [[ -n "$value" ]]; then
-            printf '%s\n' "${value//\$HOME/$HOME}"
+            value=${value//\$HOME/$HOME}
+            # A folder set to $HOME itself is a common way to "disable" an XDG dir.
+            [[ "$value" == "$HOME" ]] || printf '%s\n' "$value"
             return 0
         fi
     done
@@ -102,9 +104,7 @@ xdg_dir() {
 link_user_folder() {
     local link="$1/$2" target=$3
 
-    # A folder pointing at $HOME itself is a common way to "disable" an XDG dir; $HOME is not
-    # shared with the sandbox, so linking it would only expose an empty directory.
-    [[ -d "$target" && "$target" != "$HOME" ]] || return 0
+    [[ -d "$target" ]] || return 0
     [[ -L "$link" && "$(readlink -- "$link")" == "$target" ]] && return 0
 
     if [[ -d "$link" && ! -L "$link" ]]; then
@@ -124,6 +124,9 @@ link_user_folders() {
     link_user_folder "$user_dir" Documents "$(xdg_dir XDG_DOCUMENTS_DIR Documents)"
     link_user_folder "$user_dir" Pictures "$(xdg_dir XDG_PICTURES_DIR Pictures)"
     link_user_folder "$user_dir" Downloads "$(xdg_dir XDG_DOWNLOAD_DIR Downloads)"
+    # Wine's file dialogs open on the Desktop. In the sandbox the home folder holds just the
+    # folders linked above, so the dialogs start next to them.
+    link_user_folder "$user_dir" Desktop "$HOME"
 }
 
 studio_running() {
@@ -140,6 +143,20 @@ accept_license() {
         log "license agreement not accepted; not installing Studio"
         exit 1
     fi
+}
+
+# Files outside the shared folders are visible only when the file manager forwards them.
+check_files() {
+    local f
+    for f in "$@"; do
+        [[ -f "$f" && -r "$f" ]] && continue
+        log "can't read $f"
+        local text="BrickLink Studio can't open $f because the app has no access to it."
+        text+=" Open it from the file manager or move it to Documents, Pictures or Downloads."
+        zenity --error --no-markup --width=400 --title="BrickLink Studio" --text="$text" \
+            2>/dev/null || true
+        exit 1
+    done
 }
 
 install_if_needed() {
@@ -198,6 +215,7 @@ run_studio() {
     exec wine "$studio_exe" "${args[@]}"
 }
 
+check_files "$@"
 accept_license
 init_prefix
 link_user_folders

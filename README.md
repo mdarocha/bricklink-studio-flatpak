@@ -21,6 +21,7 @@ Not affiliated with, endorsed or supported by BrickLink or the LEGO Group.
   unpacks it over the existing install.
 - **Your folders**: Wine's Documents, Pictures and Downloads are symlinked to your real XDG
   folders, read from `~/.config/user-dirs.dirs`, so localized names like `~/Dokumenty` work.
+  Studio's file dialogs open in your home folder, where these folders are.
   Models land where you'd expect, and renders can go straight to Pictures. Those three folders
   are the only parts of your home directory the app can see.
 - **`.io` files** get their own file icon and open in Studio from the file manager.
@@ -66,6 +67,8 @@ across reinstalls.
 ## Known limitations
 
 - CUDA (GPU) photoreal rendering does not work under Wine; CPU rendering does.
+- Of your files, Studio's file dialogs see only Documents, Pictures and Downloads. Open `.io`
+  files from elsewhere in the file manager, which shares them with the app.
 
 ## Uninstall
 
