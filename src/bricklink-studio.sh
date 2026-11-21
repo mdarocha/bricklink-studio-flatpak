@@ -126,8 +126,44 @@ link_user_folders() {
     link_user_folder "$user_dir" Downloads "$(xdg_dir XDG_DOWNLOAD_DIR Downloads)"
 }
 
+# Each Flatpak instance has its own PID namespace, so ask the wineserver, which instances share.
 studio_running() {
-    grep -qaF 'Studio 2.0\Studio.exe' /proc/[0-9]*/cmdline 2>/dev/null
+    local tasks
+    tasks=$(wine tasklist /nh /fo csv /fi 'imagename eq Studio.exe' 2>/dev/null) || true
+    [[ "${tasks,,}" == *'"studio.exe"'* ]]
+}
+
+# Studio is single-instance: a second Studio.exe quits at once and drops the files it was given.
+close_running_studio() {
+    (($#)) && studio_running || return 0
+
+    local name=${1##*/}
+    (($# == 1)) || name="these files"
+    if ! zenity --question --no-markup --width=400 --title="BrickLink Studio" \
+        --text="Studio is already running. It needs to be closed in order to open $name." \
+        --ok-label=Close --cancel-label=Cancel 2>/dev/null; then
+        log "Studio is already running; not opening $*"
+        exit 0
+    fi
+
+    # WM_CLOSE, as from the window's close button, so Studio still offers to save changes.
+    wine taskkill /im Studio.exe >/dev/null 2>&1 || true
+    exec {progress_fd}> >(exec zenity --progress --pulsate --auto-close --width=400 \
+        --title="BrickLink Studio" --text="Waiting for Studio to close…" 2>/dev/null)
+    local dialog=$!
+    while studio_running; do
+        if ! kill -0 "$dialog" 2>/dev/null; then
+            progress_done
+            log "Studio is still running; not opening $*"
+            exit 0
+        fi
+        sleep 1
+    done
+
+    # The wineserver may run in the closing instance's sandbox, which kills it on exit along with
+    # any Studio started on it in the meantime.
+    wineserver -w
+    progress_done
 }
 
 # Before the first install the user must accept the license agreement embedded in the installer.
@@ -201,6 +237,7 @@ run_studio() {
 accept_license
 init_prefix
 link_user_folders
+close_running_studio "$@"
 install_if_needed
 apply_dpi
 run_studio "$@"
