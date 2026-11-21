@@ -32,6 +32,10 @@ jobs:
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08@sha256:6ed6921bb5a9e1a916989971844f159b854b7b225880c381fa34f7a158863039
       options: --privileged
+      # Overlayfs can't rename directories from the image layer, which breaks the runtime update
+      # ("Invalid cross-device link"). A volume starts as a copy of the image's content on a plain filesystem.
+      volumes:
+        - /var/lib/flatpak
     steps:
       - uses: actions/checkout@v7.0.1
 
@@ -84,7 +88,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: mdarocha/nix-magic-setup@v2.1.2
+      - uses: mdarocha/nix-magic-setup@v2.2.0
       - uses: actions/download-artifact@v8.0.2
         with:
           name: ostree-repo

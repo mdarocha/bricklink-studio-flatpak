@@ -11,7 +11,7 @@ workflows:
         - 'actions/upload-artifact@v7.0.2'
         - 'actions/upload-pages-artifact@v5.0.0'
         - 'flatpak/flatpak-github-actions@v6.8'
-        - 'mdarocha/nix-magic-setup@v2.1.2'
+        - 'mdarocha/nix-magic-setup@v2.2.0'
     '.github/workflows/update.yml':
         - 'actions/checkout@v7.0.1'
         - 'peter-evans/create-pull-request@v8.1.1'
@@ -55,32 +55,45 @@ dependencies:
         repo_id: 496012378
         uses:
             - 'actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f'
-    'cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24':
-        ref: 'v31.11.1'
-        commit: 'sha1-13d8dd58da0234aa297dedd986986ccb8e7f3e24'
+    'cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b':
+        ref: 'v31.11.3'
+        commit: 'sha1-75c75c31ebece974e48ebc36b4ad125bd97bd97b'
         owner_id: 36824654
         repo_id: 212301524
+    'determinatesystems/determinate-nix-action@92957199488000b908fdad19f63711000965d8f3':
+        ref: 'v3.24.1'
+        commit: 'sha1-92957199488000b908fdad19f63711000965d8f3'
+        owner_id: 80991770
+        repo_id: 983748827
+        uses:
+            - 'determinatesystems/nix-installer-action@9383ce2bf08796b65508822f5982f49151badc4e'
+    'determinatesystems/nix-installer-action@9383ce2bf08796b65508822f5982f49151badc4e':
+        ref: 'main'
+        commit: 'sha1-9383ce2bf08796b65508822f5982f49151badc4e'
+        owner_id: 80991770
+        repo_id: 588678074
     'flatpak/flatpak-github-actions@v6.8':
         ref: 'v6.8'
         commit: 'sha1-79327416609af08178ad73b352877e51450790b3'
         owner_id: 19473042
         repo_id: 211923252
-    'mdarocha/nix-magic-setup@v2.1.2':
-        ref: 'v2.1.2'
-        commit: 'sha1-95c70aabd32f788ff69e57c1c2433756b5825f6b'
+    'mdarocha/hestia@0f8ce82806e107d3bcf24496ae8710b28d6029b7':
+        ref: 'v3.1.0-mdarocha.1'
+        commit: 'sha1-0f8ce82806e107d3bcf24496ae8710b28d6029b7'
+        owner_id: 11572618
+        repo_id: 1444258343
+    'mdarocha/nix-magic-setup@v2.2.0':
+        ref: 'v2.2.0'
+        commit: 'sha1-7e04084f2a08e106ba6096dcb0a71f0f1130fc23'
         owner_id: 11572618
         repo_id: 1175197193
         uses:
-            - 'cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24'
-            - 'mic92/hestia@dfed9ced335d28978ba74e513939a10db1f71025'
+            - 'cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b'
+            - 'determinatesystems/determinate-nix-action@92957199488000b908fdad19f63711000965d8f3'
+            - 'mdarocha/hestia@0f8ce82806e107d3bcf24496ae8710b28d6029b7'
             - 'nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569'
-            - 'pytooling/actions@fdf667c9883dc66b7d7de79028814dc0c869c911'
+            - 'pytooling/actions@6d15804199dbbbc94f8c839f85eb6eeee82f3b7b'
             - 'wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7'
-    'mic92/hestia@dfed9ced335d28978ba74e513939a10db1f71025':
-        ref: 'v3.1.0'
-        commit: 'sha1-dfed9ced335d28978ba74e513939a10db1f71025'
-        owner_id: 96200
-        repo_id: 1255744972
     'nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569':
         ref: 'v7.0.2'
         commit: 'sha1-7df957e333c1e5da7721f60227dbba6d06080569'
@@ -91,9 +104,9 @@ dependencies:
         commit: 'sha1-5f6978faf089d4d20b00c7766989d076bb2fc7f1'
         owner_id: 18365890
         repo_id: 197176365
-    'pytooling/actions@fdf667c9883dc66b7d7de79028814dc0c869c911':
-        ref: 'v9.1.0'
-        commit: 'sha1-fdf667c9883dc66b7d7de79028814dc0c869c911'
+    'pytooling/actions@6d15804199dbbbc94f8c839f85eb6eeee82f3b7b':
+        ref: 'v9.3.1'
+        commit: 'sha1-6d15804199dbbbc94f8c839f85eb6eeee82f3b7b'
         owner_id: 93549182
         repo_id: 430520285
     'srz-zumix/post-run-action@v3':
